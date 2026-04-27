@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 506375e1d62fa364d84d8ec1b5874347, type: 3}
   m_Name: PieceTextures
   m_EditorClassIdentifier: Assembly-CSharp::PieceTextures
-  whiteKing: {fileID: 0}
-  whiteQueen: {fileID: 0}
-  whiteRook: {fileID: 0}
-  whiteBishop: {fileID: 0}
-  whiteKnight: {fileID: 0}
-  whitePawn: {fileID: 0}
-  blackKing: {fileID: 0}
-  blackQueen: {fileID: 0}
-  blackRook: {fileID: 0}
-  blackBishop: {fileID: 0}
-  blackKnight: {fileID: 0}
-  blackPawn: {fileID: 0}
+  whiteKing: {fileID: 2800000, guid: ad9cc441acfa05d40a0d08cab2cf562a, type: 3}
+  whiteQueen: {fileID: 2800000, guid: 833e540af05f74841a64cdc3bdc4103e, type: 3}
+  whiteRook: {fileID: 2800000, guid: b95bac0c68bc8ec4c8c309e7f74d06ed, type: 3}
+  whiteBishop: {fileID: 2800000, guid: e4d6205e62d3a084ab2b11de3db141eb, type: 3}
+  whiteKnight: {fileID: 2800000, guid: eafcb77f1ccce4c43a5b49307d381e18, type: 3}
+  whitePawn: {fileID: 2800000, guid: aad3e2fcc10bc8948a2192ecb6d2ea11, type: 3}
+  blackKing: {fileID: 2800000, guid: 3cabed6d496c5cd49b63f9dcaa8a6339, type: 3}
+  blackQueen: {fileID: 2800000, guid: 5591881d152aa1b499fa6c9805305644, type: 3}
+  blackRook: {fileID: 2800000, guid: d237bb5e3ad8ee74e93d8a30f9c5b52e, type: 3}
+  blackBishop: {fileID: 2800000, guid: 47eef5d788520934ba75cc977547cd61, type: 3}
+  blackKnight: {fileID: 2800000, guid: ec40ffcc3aec19e4f8e506c7834f494e, type: 3}
+  blackPawn: {fileID: 2800000, guid: d3324bbc95e7a054aa0fdcd214354d1e, type: 3}

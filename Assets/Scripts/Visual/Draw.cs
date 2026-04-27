@@ -37,6 +37,8 @@ public static class Draw
         piece.transform.position = new Vector3(position.x, position.y, 0);
         piece.transform.parent = parent;
 
+        piece.AddComponent<BoxCollider2D>();
+
         SpriteRenderer renderer = piece.AddComponent<SpriteRenderer>();
         renderer.sprite = Sprite.Create(
             pieceTexture,
@@ -47,10 +49,5 @@ public static class Draw
         renderer.sortingOrder = 1;
 
         return piece;
-    }
-
-    public static void Piece(Texture pieceTexture)
-    {
-        
     }
 }
