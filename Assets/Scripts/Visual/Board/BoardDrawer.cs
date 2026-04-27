@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class ChessBoardViewer : MonoBehaviour
+public class BoardDrawer : MonoBehaviour
 {
+    public static float squareSize = 1.2f;
     public Color lightCol;
     public Color darkCol;
-    public float squareSize = 1.5f;
 
     void Start()
     {

@@ -30,4 +30,27 @@ public static class Draw
 
         return Sprite.Create(texture, new Rect(0, 0, pixelSize, pixelSize), new Vector2(0.5f, 0.5f), pixelSize / size);
     }
+
+    public static GameObject Piece(Texture2D pieceTexture, Vector2 position, Transform parent, float size = 1f)
+    {
+        GameObject piece = new GameObject("Piece");
+        piece.transform.position = new Vector3(position.x, position.y, 0);
+        piece.transform.parent = parent;
+
+        SpriteRenderer renderer = piece.AddComponent<SpriteRenderer>();
+        renderer.sprite = Sprite.Create(
+            pieceTexture,
+            new Rect(0, 0, pieceTexture.width, pieceTexture.height),
+            new Vector2(0.5f, 0.5f),
+            pieceTexture.width / size
+        );
+        renderer.sortingOrder = 1;
+
+        return piece;
+    }
+
+    public static void Piece(Texture pieceTexture)
+    {
+        
+    }
 }
