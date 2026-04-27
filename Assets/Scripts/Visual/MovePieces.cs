@@ -1,10 +1,13 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class MovePieces : MonoBehaviour
 {
     Camera cam;
     GameObject draggedPiece;
     int fromIndex;
+
+    public static Dictionary<int, GameObject> pieceObjects = new Dictionary<int, GameObject>();
 
     void Start()
     {
@@ -47,18 +50,25 @@ public class MovePieces : MonoBehaviour
 
         if (toIndex >= 0 && toIndex < 64)
         {
-            // Update the board
-            Board.Squares[toIndex] = Board.Squares[fromIndex];
-            Board.Squares[fromIndex] = Piece.None;
+            if (toIndex != fromIndex)
+            {
+                if (pieceObjects.ContainsKey(toIndex))
+                {
+                    Destroy(pieceObjects[toIndex]);
+                    pieceObjects.Remove(toIndex);
+                }
 
-            // Snap piece to center of square
+                pieceObjects.Remove(fromIndex);
+                pieceObjects[toIndex] = draggedPiece;
+
+                Board.Squares[toIndex] = Board.Squares[fromIndex];
+                Board.Squares[fromIndex] = Piece.None;
+            }
+
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(toIndex);
         }
         else
-        {
-            // Dropped off board, snap back
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(fromIndex);
-        }
 
         draggedPiece = null;
     }

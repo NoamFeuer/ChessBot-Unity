@@ -11,7 +11,7 @@ public class PieceDrawer : MonoBehaviour
         DrawPieces();
     }
 
-    public void DrawPieces()
+   void DrawPieces()
     {
         for (int i = 0; i < Board.Squares.Length; i++)
         {
@@ -22,7 +22,8 @@ public class PieceDrawer : MonoBehaviour
             if (texture == null) continue;
 
             Vector2 position = Board.IndexToPosition(i);
-            Draw.Piece(texture, position, parent, size);
+            GameObject piece = Draw.Piece(texture, position, transform, size);
+            MovePieces.pieceObjects[i] = piece; // register it
         }
     }
 }
