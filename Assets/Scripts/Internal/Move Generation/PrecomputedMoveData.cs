@@ -4,6 +4,7 @@ using UnityEngine;
 public class PrecomputedMoveData
 {
     public static readonly int[] DirectionOffsets = { 8, -8, -1, 1, 7, -7, 9, -9 };
+    public static int[] knightJumps = { 15, 17, -15, -17, 6, 10, -6, -10 };
     public static readonly int[][] NumSquaresToEdge;
 
     static PrecomputedMoveData()

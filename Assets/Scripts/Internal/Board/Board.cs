@@ -53,4 +53,14 @@ public static class Board
             }
         }
     }
+
+    public static int PositionToIndex(Vector2 worldPos)
+    {
+        int file = Mathf.RoundToInt(worldPos.x / BoardDrawer.squareSize + 3.5f);
+        int rank = Mathf.RoundToInt(worldPos.y / BoardDrawer.squareSize + 3.5f);
+
+        if (file < 0 || file > 7 || rank < 0 || rank > 7) return -1;
+
+        return rank * 8 + file;
+    }
 }

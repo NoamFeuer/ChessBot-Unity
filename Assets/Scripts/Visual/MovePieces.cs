@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class MovePieces : MonoBehaviour
 {
+    public AudioSource moveSound;
+
     Camera cam;
     GameObject draggedPiece;
     int fromIndex;
@@ -31,7 +33,7 @@ public class MovePieces : MonoBehaviour
         if (hit.collider.gameObject.name != "Piece") return;
 
         draggedPiece = hit.collider.gameObject;
-        fromIndex = PositionToIndex(draggedPiece.transform.position);
+        fromIndex = Board.PositionToIndex(draggedPiece.transform.position);
 
         // Generate all legal moves and filter to only this piece's moves
         legalMoves = MoveGeneration.GenerateMoves()
@@ -51,10 +53,12 @@ public class MovePieces : MonoBehaviour
         if (draggedPiece == null) return;
 
         Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
-        int toIndex = PositionToIndex(mousePos);
+        int toIndex = Board.PositionToIndex(mousePos);
 
         if (toIndex >= 0 && toIndex < 64 && toIndex != fromIndex && IsLegalMove(toIndex))
         {
+            moveSound.Play();
+
             if (pieceObjects.ContainsKey(toIndex))
             {
                 Destroy(pieceObjects[toIndex]);
@@ -81,15 +85,5 @@ public class MovePieces : MonoBehaviour
     bool IsLegalMove(int toIndex)
     {
         return legalMoves != null && legalMoves.Exists(m => m.TargetSquare == toIndex);
-    }
-
-    int PositionToIndex(Vector2 worldPos)
-    {
-        int file = Mathf.RoundToInt(worldPos.x / BoardDrawer.squareSize + 3.5f);
-        int rank = Mathf.RoundToInt(worldPos.y / BoardDrawer.squareSize + 3.5f);
-
-        if (file < 0 || file > 7 || rank < 0 || rank > 7) return -1;
-
-        return rank * 8 + file;
     }
 }
