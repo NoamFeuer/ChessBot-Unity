@@ -3,12 +3,13 @@ using UnityEngine;
 public static class Board
 {
     public static int[] Squares;
+    public static int colorToMove = Piece.White;
 
     static Board()
     {
         Squares = new int[64];
 
-        LoadPositionFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        LoadPositionFromFen("r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R");
     }
 
     public static Vector2 IndexToPosition(int i)

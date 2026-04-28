@@ -6,6 +6,7 @@ public class MovePieces : MonoBehaviour
     Camera cam;
     GameObject draggedPiece;
     int fromIndex;
+    List<Move> legalMoves;
 
     public static Dictionary<int, GameObject> pieceObjects = new Dictionary<int, GameObject>();
 
@@ -31,6 +32,10 @@ public class MovePieces : MonoBehaviour
 
         draggedPiece = hit.collider.gameObject;
         fromIndex = PositionToIndex(draggedPiece.transform.position);
+
+        // Generate all legal moves and filter to only this piece's moves
+        legalMoves = MoveGeneration.GenerateMoves()
+            .FindAll(m => m.StartSquare == fromIndex);
     }
 
     void DragPiece()
@@ -48,22 +53,21 @@ public class MovePieces : MonoBehaviour
         Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         int toIndex = PositionToIndex(mousePos);
 
-        if (toIndex >= 0 && toIndex < 64)
+        if (toIndex >= 0 && toIndex < 64 && toIndex != fromIndex && IsLegalMove(toIndex))
         {
-            if (toIndex != fromIndex)
+            if (pieceObjects.ContainsKey(toIndex))
             {
-                if (pieceObjects.ContainsKey(toIndex))
-                {
-                    Destroy(pieceObjects[toIndex]);
-                    pieceObjects.Remove(toIndex);
-                }
-
-                pieceObjects.Remove(fromIndex);
-                pieceObjects[toIndex] = draggedPiece;
-
-                Board.Squares[toIndex] = Board.Squares[fromIndex];
-                Board.Squares[fromIndex] = Piece.None;
+                Destroy(pieceObjects[toIndex]);
+                pieceObjects.Remove(toIndex);
             }
+
+            pieceObjects.Remove(fromIndex);
+            pieceObjects[toIndex] = draggedPiece;
+
+            Board.Squares[toIndex] = Board.Squares[fromIndex];
+            Board.Squares[fromIndex] = Piece.None;
+
+            Board.colorToMove = (Board.colorToMove == Piece.White) ? Piece.Black : Piece.White;
 
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(toIndex);
         }
@@ -71,6 +75,12 @@ public class MovePieces : MonoBehaviour
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(fromIndex);
 
         draggedPiece = null;
+        legalMoves = null;
+    }
+
+    bool IsLegalMove(int toIndex)
+    {
+        return legalMoves != null && legalMoves.Exists(m => m.TargetSquare == toIndex);
     }
 
     int PositionToIndex(Vector2 worldPos)
