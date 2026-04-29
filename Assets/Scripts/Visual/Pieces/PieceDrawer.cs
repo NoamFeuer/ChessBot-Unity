@@ -6,12 +6,7 @@ public class PieceDrawer : MonoBehaviour
     public Transform parent;
     public float size = 1f;
 
-    void Start()
-    {
-        DrawPieces();
-    }
-
-   void DrawPieces()
+   public void DrawPieces()
     {
         for (int i = 0; i < Board.Squares.Length; i++)
         {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public static class Board
 {
@@ -8,8 +9,58 @@ public static class Board
     static Board()
     {
         Squares = new int[64];
+    }
 
-        LoadPositionFromFen("r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R");
+    public static bool MakeMove(Move move, bool validated = false)
+    {
+        if (!MovePieces.IsLegalMove(move))
+        {
+            Debug.LogError("That move isn't legal");
+            return false;
+        }
+
+        int movingPiece = Squares[move.StartSquare];
+
+        Squares[move.TargetSquare] = movingPiece;
+        Squares[move.StartSquare] = Piece.None;
+
+        // Handle rook movement for castling (before flipping color)
+        if (Piece.IsType(movingPiece, Piece.King))
+        {
+            int kingIndex = colorToMove == Piece.White ? 4 : 60;
+
+            if (move.TargetSquare == kingIndex + 2) // Kingside
+            {
+                Squares[kingIndex + 1] = Squares[kingIndex + 3];
+                Squares[kingIndex + 3] = Piece.None;
+            }
+            else if (move.TargetSquare == kingIndex - 2) // Queenside
+            {
+                Squares[kingIndex - 1] = Squares[kingIndex - 4];
+                Squares[kingIndex - 4] = Piece.None;
+            }
+        }
+
+        SpecialMoves.UpdateCastlingRights(move);
+
+        colorToMove = colorToMove == Piece.White ? Piece.Black : Piece.White;
+
+        return true;
+    }
+
+    public static bool IsSquareAttacked(int squareIndex)
+    {
+        int opponent = Board.colorToMove == Piece.White ? Piece.Black : Piece.White;
+        int originalColor = Board.colorToMove;
+
+        colorToMove = opponent;
+        List<Move> opponentMoves = MoveGeneration.GenerateMoves(includeCastling: false);
+        colorToMove = originalColor;
+
+        foreach (Move move in opponentMoves)
+            if (move.TargetSquare == squareIndex) return true;
+
+        return false;
     }
 
     public static Vector2 IndexToPosition(int i)

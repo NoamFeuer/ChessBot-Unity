@@ -1,14 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 
 public class MovePieces : MonoBehaviour
 {
+    public static List<Move> legalMoves;
     public AudioSource moveSound;
 
     Camera cam;
     GameObject draggedPiece;
     int fromIndex;
-    List<Move> legalMoves;
 
     public static Dictionary<int, GameObject> pieceObjects = new Dictionary<int, GameObject>();
 
@@ -55,7 +56,9 @@ public class MovePieces : MonoBehaviour
         Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         int toIndex = Board.PositionToIndex(mousePos);
 
-        if (toIndex >= 0 && toIndex < 64 && toIndex != fromIndex && IsLegalMove(toIndex))
+        Move move = new Move(fromIndex, toIndex);
+
+        if (toIndex >= 0 && toIndex < 64 && toIndex != fromIndex && IsLegalMove(move))
         {
             moveSound.Play();
 
@@ -68,10 +71,7 @@ public class MovePieces : MonoBehaviour
             pieceObjects.Remove(fromIndex);
             pieceObjects[toIndex] = draggedPiece;
 
-            Board.Squares[toIndex] = Board.Squares[fromIndex];
-            Board.Squares[fromIndex] = Piece.None;
-
-            Board.colorToMove = (Board.colorToMove == Piece.White) ? Piece.Black : Piece.White;
+            Board.MakeMove(move, true);
 
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(toIndex);
         }
@@ -82,8 +82,8 @@ public class MovePieces : MonoBehaviour
         legalMoves = null;
     }
 
-    bool IsLegalMove(int toIndex)
+    public static bool IsLegalMove(Move move)
     {
-        return legalMoves != null && legalMoves.Exists(m => m.TargetSquare == toIndex);
+        return legalMoves != null && legalMoves.Contains(move);
     }
 }

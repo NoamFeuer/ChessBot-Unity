@@ -6,7 +6,7 @@ public static class MoveGeneration
     static int friendlyColor;
     static int oppositeColor;
 
-    public static List<Move> GenerateMoves()
+    public static List<Move> GenerateMoves(bool includeCastling = true)
     {
         moves = new List<Move>();
         friendlyColor = Board.colorToMove;
@@ -25,6 +25,12 @@ public static class MoveGeneration
                 GenerateKingMoves(startSquare);
             else if (Piece.IsType(piece, Piece.Pawn))
                 GeneratePawnMoves(startSquare);
+        }
+
+        if (includeCastling)
+        {
+            foreach (Move castlingMove in SpecialMoves.GetCastlingMoves())
+                moves.Add(castlingMove);
         }
 
         return moves;
@@ -64,7 +70,6 @@ public static class MoveGeneration
 
             if (targetSquare < 0 || targetSquare >= 64) continue;
 
-            // Make sure it didn't wrap around the board
             int targetFile = targetSquare % 8;
             int targetRank = targetSquare / 8;
             int fileDiff = System.Math.Abs(targetFile - file);
@@ -81,7 +86,6 @@ public static class MoveGeneration
 
     static void GenerateKingMoves(int startSquare)
     {
-        // King moves in all 8 directions, but only 1 square
         for (int directionIndex = 0; directionIndex < 8; directionIndex++)
         {
             if (PrecomputedMoveData.NumSquaresToEdge[startSquare][directionIndex] == 0) continue;
@@ -93,6 +97,8 @@ public static class MoveGeneration
 
             moves.Add(new Move(startSquare, targetSquare));
         }
+
+        // Castling is added by SpecialMoves.GetCastlingMoves() — not here
     }
 
     static void GeneratePawnMoves(int startSquare)
@@ -116,7 +122,6 @@ public static class MoveGeneration
 
         // Captures diagonally
         int[] captureDirs = { 7 * direction, 9 * direction };
-        int[] captureFileDiffs = { -1, 1 }; // left and right
 
         for (int i = 0; i < 2; i++)
         {
@@ -124,7 +129,7 @@ public static class MoveGeneration
             int targetFile = targetSquare % 8;
 
             if (targetSquare < 0 || targetSquare >= 64) continue;
-            if (System.Math.Abs(targetFile - file) != 1) continue; // prevent wrap
+            if (System.Math.Abs(targetFile - file) != 1) continue;
             if (!Piece.IsColor(Board.Squares[targetSquare], oppositeColor)) continue;
 
             moves.Add(new Move(startSquare, targetSquare));
