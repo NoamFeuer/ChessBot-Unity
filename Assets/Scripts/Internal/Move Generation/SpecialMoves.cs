@@ -1,73 +1,152 @@
-using System.Collections.Generic;
+// using System.Collections.Generic;
+// using UnityEngine;
 
-public static class SpecialMoves
-{
-    static bool whiteCastleKingside  = true;
-    static bool whiteCastleQueenside = true;
-    static bool blackCastleKingside  = true;
-    static bool blackCastleQueenside = true;
+// public static class SpecialMoves
+// {
+//     static bool whiteCastleKingside = true;
+//     static bool whiteCastleQueenside = true;
+//     static bool blackCastleKingside = true;
+//     static bool blackCastleQueenside = true;
 
-    public static List<Move> GetCastlingMoves()
-    {
-        List<Move> castlingMoves = new List<Move>();
+//     public static List<Move> GetCastlingMoves()
+//     {
+//         List<Move> castlingMoves = new List<Move>();
 
-        int kingIndex = Board.colorToMove == Piece.White ? 4 : 60;
-        int kingPiece = Piece.King | Board.colorToMove;
+//         if (Board.colorToMove == Piece.White)
+//         {
+//             if (whiteCastleKingside &&
+//                 Board.Squares[PMD.whiteKingIndex] == (Piece.White | Piece.King) &&
+//                 Board.Squares[PMD.whiteRookIndexes[1]] == (Piece.White | Piece.Rook) &&
+//                 Board.Squares[PMD.whiteKingIndex + 1] == Piece.None &&
+//                 Board.Squares[PMD.whiteKingIndex + 2] == Piece.None &&
+//                 !Board.IsSquareAttacked(PMD.whiteKingIndex) &&
+//                 !Board.IsSquareAttacked(PMD.whiteKingIndex + 1) &&
+//                 !Board.IsSquareAttacked(PMD.whiteKingIndex + 2))
+//             {
+//                 castlingMoves.Add(
+//                     new Move(
+//                         PMD.whiteKingIndex,
+//                         PMD.whiteKingIndex + 2,
+//                         castelingMove: true
+//                     )
+//                 );
+//             }
 
-        if (Board.Squares[kingIndex] != kingPiece)
-            return castlingMoves;
+//             if (whiteCastleQueenside &&
+//                 Board.Squares[PMD.whiteKingIndex] == (Piece.White | Piece.King) &&
+//                 Board.Squares[PMD.whiteRookIndexes[0]] == (Piece.White | Piece.Rook) &&
+//                 Board.Squares[PMD.whiteKingIndex - 1] == Piece.None &&
+//                 Board.Squares[PMD.whiteKingIndex - 2] == Piece.None &&
+//                 Board.Squares[PMD.whiteKingIndex - 3] == Piece.None &&
+//                 !Board.IsSquareAttacked(PMD.whiteKingIndex) &&
+//                 !Board.IsSquareAttacked(PMD.whiteKingIndex - 1) &&
+//                 !Board.IsSquareAttacked(PMD.whiteKingIndex - 2))
+//             {
+//                 castlingMoves.Add(
+//                     new Move(
+//                         PMD.whiteKingIndex,
+//                         PMD.whiteKingIndex - 2,
+//                         castelingMove: true
+//                     )
+//                 );
+//             }
+//         }
+//         else
+//         {
+//             if (blackCastleKingside &&
+//                 Board.Squares[PMD.blackKingIndex] == (Piece.Black | Piece.King) &&
+//                 Board.Squares[PMD.blackRookIndexes[1]] == (Piece.Black | Piece.Rook) &&
+//                 Board.Squares[PMD.blackKingIndex + 1] == Piece.None &&
+//                 Board.Squares[PMD.blackKingIndex + 2] == Piece.None &&
+//                 !Board.IsSquareAttacked(PMD.blackKingIndex) &&
+//                 !Board.IsSquareAttacked(PMD.blackKingIndex + 1) &&
+//                 !Board.IsSquareAttacked(PMD.blackKingIndex + 2))
+//             {
+//                 castlingMoves.Add(
+//                     new Move(
+//                         PMD.blackKingIndex,
+//                         PMD.blackKingIndex + 2,
+//                         castelingMove: true
+//                     )
+//                 );
+//             }
 
-        int rookPiece = Piece.Rook | Board.colorToMove;
+//             if (blackCastleQueenside &&
+//                 Board.Squares[PMD.blackKingIndex] == (Piece.Black | Piece.King) &&
+//                 Board.Squares[PMD.blackRookIndexes[0]] == (Piece.Black | Piece.Rook) &&
+//                 Board.Squares[PMD.blackKingIndex - 1] == Piece.None &&
+//                 Board.Squares[PMD.blackKingIndex - 2] == Piece.None &&
+//                 Board.Squares[PMD.blackKingIndex - 3] == Piece.None &&
+//                 !Board.IsSquareAttacked(PMD.blackKingIndex) &&
+//                 !Board.IsSquareAttacked(PMD.blackKingIndex - 1) &&
+//                 !Board.IsSquareAttacked(PMD.blackKingIndex - 2))
+//             {
+//                 castlingMoves.Add(
+//                     new Move(
+//                         PMD.blackKingIndex,
+//                         PMD.blackKingIndex - 2,
+//                         castelingMove: true
+//                     )
+//                 );
+//             }
+//         }
 
-        bool castleKingside  = Board.colorToMove == Piece.White ? whiteCastleKingside  : blackCastleKingside;
-        bool castleQueenside = Board.colorToMove == Piece.White ? whiteCastleQueenside : blackCastleQueenside;
+//         return castlingMoves;
+//     }
 
-        // Kingside
-        if (castleKingside)
-        {
-            int rookIndex = kingIndex + 3;
-            if (Board.Squares[rookIndex] == rookPiece &&
-                Board.Squares[kingIndex + 1] == Piece.None &&
-                Board.Squares[kingIndex + 2] == Piece.None &&
-                !Board.IsSquareAttacked(kingIndex) &&
-                !Board.IsSquareAttacked(kingIndex + 1) &&
-                !Board.IsSquareAttacked(kingIndex + 2))
-            {
-                castlingMoves.Add(new Move(kingIndex, kingIndex + 2));
-            }
-        }
+//     public static void UpdateCastelingRights(Move move)
+//     {
+//         if (Board.colorToMove == Piece.White)
+//         {
+//             if (Piece.IsType(move.MovingPiece, Piece.King))
+//             {
+//                 whiteCastleKingside = false;
+//                 whiteCastleQueenside = false;
+//             }
 
-        // Queenside
-        if (castleQueenside)
-        {
-            int rookIndex = kingIndex - 4;
-            if (Board.Squares[rookIndex] == rookPiece &&
-                Board.Squares[kingIndex - 1] == Piece.None &&
-                Board.Squares[kingIndex - 2] == Piece.None &&
-                Board.Squares[kingIndex - 3] == Piece.None &&
-                !Board.IsSquareAttacked(kingIndex) &&
-                !Board.IsSquareAttacked(kingIndex - 1) &&
-                !Board.IsSquareAttacked(kingIndex - 2))
-            {
-                castlingMoves.Add(new Move(kingIndex, kingIndex - 2));
-            }
-        }
+//             if (move.StartSquare == PMD.whiteRookIndexes[0] ||
+//                 move.TargetSquare == PMD.whiteRookIndexes[0])
+//                 whiteCastleQueenside = false;
 
-        return castlingMoves;
-    }
+//             if (move.StartSquare == PMD.whiteRookIndexes[1] ||
+//                 move.TargetSquare == PMD.whiteRookIndexes[1])
+//                 whiteCastleKingside = false;
 
-    public static void UpdateCastlingRights(Move move)
-    {
-        // King moved
-        if (move.StartSquare == 4)  { whiteCastleKingside = false; whiteCastleQueenside = false; }
-        if (move.StartSquare == 60) { blackCastleKingside = false; blackCastleQueenside = false; }
+//             if (move.TargetSquare == PMD.blackRookIndexes[0])
+//                 blackCastleQueenside = false;
 
-        // White rooks moved or captured
-        if (move.StartSquare == 0  || move.TargetSquare == 0)  whiteCastleQueenside = false;
-        if (move.StartSquare == 7  || move.TargetSquare == 7)  whiteCastleKingside  = false;
+//             if (move.TargetSquare == PMD.blackRookIndexes[1])
+//                 blackCastleKingside = false;
+//         }
+//         else
+//         {
+//             if (Piece.IsType(move.MovingPiece, Piece.King))
+//             {
+//                 blackCastleKingside = false;
+//                 blackCastleQueenside = false;
+//             }
 
-        // Black rooks moved or captured
-        if (move.StartSquare == 56 || move.TargetSquare == 56) blackCastleQueenside = false;
-        if (move.StartSquare == 63 || move.TargetSquare == 63) blackCastleKingside  = false;
-    }
-}
+//             if (move.StartSquare == PMD.blackRookIndexes[0] ||
+//                 move.TargetSquare == PMD.blackRookIndexes[0])
+//                 blackCastleQueenside = false;
+
+//             if (move.StartSquare == PMD.blackRookIndexes[1] ||
+//                 move.TargetSquare == PMD.blackRookIndexes[1])
+//                 blackCastleKingside = false;
+
+//             if (move.TargetSquare == PMD.whiteRookIndexes[0])
+//                 whiteCastleQueenside = false;
+
+//             if (move.TargetSquare == PMD.whiteRookIndexes[1])
+//                 whiteCastleKingside = false;
+//         }
+//     }
+
+//     public static void ResetCastlingRights()
+//     {
+//         whiteCastleKingside = true;
+//         whiteCastleQueenside = true;
+//         blackCastleKingside = true;
+//         blackCastleQueenside = true;
+//     }
+// }

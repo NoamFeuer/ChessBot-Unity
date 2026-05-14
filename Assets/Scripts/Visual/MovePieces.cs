@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using NUnit.Framework.Constraints;
 
 public class MovePieces : MonoBehaviour
 {
@@ -33,12 +32,13 @@ public class MovePieces : MonoBehaviour
         if (hit.collider == null) return;
         if (hit.collider.gameObject.name != "Piece") return;
 
-        draggedPiece = hit.collider.gameObject;
-        fromIndex = Board.PositionToIndex(draggedPiece.transform.position);
+        int index = Board.PositionToIndex(hit.collider.gameObject.transform.position);
+        if (!Piece.IsColor(Board.Squares[index], Board.colorToMove)) return;
 
-        // Generate all legal moves and filter to only this piece's moves
-        legalMoves = MoveGeneration.GenerateMoves()
-            .FindAll(m => m.StartSquare == fromIndex);
+        draggedPiece = hit.collider.gameObject;
+        fromIndex = index;
+
+        legalMoves = MoveGeneration.GenerateLegalMovesForPiece(fromIndex);
     }
 
     void DragPiece()
@@ -55,7 +55,6 @@ public class MovePieces : MonoBehaviour
 
         Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         int toIndex = Board.PositionToIndex(mousePos);
-
         Move move = new Move(fromIndex, toIndex);
 
         if (toIndex >= 0 && toIndex < 64 && toIndex != fromIndex && IsLegalMove(move))
@@ -74,12 +73,30 @@ public class MovePieces : MonoBehaviour
             Board.MakeMove(move, true);
 
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(toIndex);
+
+            CheckGameState();
         }
         else
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(fromIndex);
 
         draggedPiece = null;
         legalMoves = null;
+    }
+
+    void CheckGameState()
+    {
+        bool inCheck      = MoveGeneration.IsKingInCheck(Board.colorToMove);
+        bool hasLegalMoves = MoveGeneration.GenerateLegalMoves().Count > 0;
+
+        if (!hasLegalMoves)
+        {
+            if (inCheck)
+                Debug.Log("Checkmate! " + (Board.colorToMove == Piece.White ? "Black" : "White") + " wins!");
+            else
+                Debug.Log("Stalemate!");
+        }
+        else if (inCheck)
+            Debug.Log((Board.colorToMove == Piece.White ? "White" : "Black") + " is in check!");
     }
 
     public static bool IsLegalMove(Move move)

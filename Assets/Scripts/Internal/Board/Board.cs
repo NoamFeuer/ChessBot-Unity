@@ -11,7 +11,7 @@ public static class Board
         Squares = new int[64];
     }
 
-    public static bool MakeMove(Move move, bool validated = false)
+    public static bool MakeMove(Move move, bool validated)
     {
         if (!MovePieces.IsLegalMove(move))
         {
@@ -24,7 +24,6 @@ public static class Board
         Squares[move.TargetSquare] = movingPiece;
         Squares[move.StartSquare] = Piece.None;
 
-        // Handle rook movement for castling (before flipping color)
         if (Piece.IsType(movingPiece, Piece.King))
         {
             int kingIndex = colorToMove == Piece.White ? 4 : 60;
@@ -41,26 +40,40 @@ public static class Board
             }
         }
 
-        SpecialMoves.UpdateCastlingRights(move);
-
         colorToMove = colorToMove == Piece.White ? Piece.Black : Piece.White;
+
+        // SpecialMoves.UpdateCastelingRights(move);
 
         return true;
     }
 
-    public static bool IsSquareAttacked(int squareIndex)
+    public static bool IsSquareAttacked(int squareIndex, int attackerColor)
     {
-        int opponent = Board.colorToMove == Piece.White ? Piece.Black : Piece.White;
         int originalColor = Board.colorToMove;
+        colorToMove = attackerColor;  // so GenerateMovesForPiece uses correct colors
 
-        colorToMove = opponent;
-        List<Move> opponentMoves = MoveGeneration.GenerateMoves(includeCastling: false);
-        colorToMove = originalColor;
+        bool attacked = false;
 
-        foreach (Move move in opponentMoves)
-            if (move.TargetSquare == squareIndex) return true;
+        for (int startSquare = 0; startSquare < 64; startSquare++)
+        {
+            int piece = Squares[startSquare];
+            if (!Piece.IsColor(piece, attackerColor)) continue;
 
-        return false;
+            List<Move> attacks = MoveGeneration.GenerateMovesForPiece(startSquare, piece, attacksOnly: true);
+
+            foreach (Move move in attacks)
+            {
+                if (move.TargetSquare == squareIndex)
+                {
+                    attacked = true;
+                    break;
+                }
+            }
+            if (attacked) break;
+        }
+
+        colorToMove = originalColor;  // restore
+        return attacked;
     }
 
     public static Vector2 IndexToPosition(int i)

@@ -29,4 +29,14 @@ public static class Piece
     {
         return (piece & 0b00111) == type;
     }
+
+    public static int GetColor(int piece)
+    {
+        return piece & 0b11000;
+    }
+
+    public static int GetType(int piece)
+    {
+        return piece & 0b00111;
+    }
 }
