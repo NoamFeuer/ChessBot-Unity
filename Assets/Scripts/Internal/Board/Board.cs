@@ -11,46 +11,56 @@ public static class Board
         Squares = new int[64];
     }
 
-    public static bool MakeMove(Move move, bool validated)
+    public static bool MakeMove(Move move)
     {
-        if (!MovePieces.IsLegalMove(move))
-        {
-            Debug.LogError("That move isn't legal");
-            return false;
-        }
-
         int movingPiece = Squares[move.StartSquare];
 
         Squares[move.TargetSquare] = movingPiece;
-        Squares[move.StartSquare] = Piece.None;
+        Squares[move.StartSquare]  = Piece.None;
 
+        // En passant: remove the captured pawn
+        if (move.EnPassantMove)
+        {
+            int direction = (colorToMove == Piece.White) ? 1 : -1;
+            int capturedPawnSquare = move.TargetSquare - 8 * direction;
+            Squares[capturedPawnSquare] = Piece.None;
+
+            if (MovePieces.pieceObjects.ContainsKey(capturedPawnSquare))
+            {
+                UnityEngine.Object.Destroy(MovePieces.pieceObjects[capturedPawnSquare]);
+                MovePieces.pieceObjects.Remove(capturedPawnSquare);
+            }
+        }
+
+        // Castling: move the rook
         if (Piece.IsType(movingPiece, Piece.King))
         {
             int kingIndex = colorToMove == Piece.White ? 4 : 60;
 
-            if (move.TargetSquare == kingIndex + 2) // Kingside
+            if (move.TargetSquare == kingIndex + 2)
             {
                 Squares[kingIndex + 1] = Squares[kingIndex + 3];
                 Squares[kingIndex + 3] = Piece.None;
             }
-            else if (move.TargetSquare == kingIndex - 2) // Queenside
+            else if (move.TargetSquare == kingIndex - 2)
             {
                 Squares[kingIndex - 1] = Squares[kingIndex - 4];
                 Squares[kingIndex - 4] = Piece.None;
             }
         }
 
-        colorToMove = colorToMove == Piece.White ? Piece.Black : Piece.White;
+        // Update EP square BEFORE flipping color (piece still belongs to current color)
+        SpecialMoves.UpdateEnPassant(move);
 
-        // SpecialMoves.UpdateCastelingRights(move);
+        colorToMove = colorToMove == Piece.White ? Piece.Black : Piece.White;
 
         return true;
     }
 
     public static bool IsSquareAttacked(int squareIndex, int attackerColor)
     {
-        int originalColor = Board.colorToMove;
-        colorToMove = attackerColor;  // so GenerateMovesForPiece uses correct colors
+        int originalColor = colorToMove;
+        colorToMove = attackerColor;
 
         bool attacked = false;
 
@@ -61,9 +71,9 @@ public static class Board
 
             List<Move> attacks = MoveGeneration.GenerateMovesForPiece(startSquare, piece, attacksOnly: true);
 
-            foreach (Move move in attacks)
+            foreach (Move attack in attacks)
             {
-                if (move.TargetSquare == squareIndex)
+                if (attack.TargetSquare == squareIndex)
                 {
                     attacked = true;
                     break;
@@ -72,7 +82,7 @@ public static class Board
             if (attacked) break;
         }
 
-        colorToMove = originalColor;  // restore
+        colorToMove = originalColor;
         return attacked;
     }
 
@@ -101,7 +111,7 @@ public static class Board
             else
             {
                 int color = char.IsUpper(c) ? Piece.White : Piece.Black;
-                int type = char.ToLower(c) switch
+                int type  = char.ToLower(c) switch
                 {
                     'k' => Piece.King,
                     'q' => Piece.Queen,

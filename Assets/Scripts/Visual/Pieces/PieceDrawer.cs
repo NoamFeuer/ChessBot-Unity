@@ -6,8 +6,15 @@ public class PieceDrawer : MonoBehaviour
     public Transform parent;
     public float size = 1f;
 
-   public void DrawPieces()
+    public void DrawPieces()
     {
+        foreach (var kvp in MovePieces.pieceObjects)
+        {
+            if (kvp.Value != null)
+                Destroy(kvp.Value);
+        }
+        MovePieces.pieceObjects.Clear();
+
         for (int i = 0; i < Board.Squares.Length; i++)
         {
             int square = Board.Squares[i];
@@ -18,7 +25,7 @@ public class PieceDrawer : MonoBehaviour
 
             Vector2 position = Board.IndexToPosition(i);
             GameObject piece = Draw.Piece(texture, position, transform, size);
-            MovePieces.pieceObjects[i] = piece; // register it
+            MovePieces.pieceObjects[i] = piece;
         }
     }
 }

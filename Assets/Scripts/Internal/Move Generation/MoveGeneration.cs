@@ -182,18 +182,13 @@ public static class MoveGeneration
 
             moves.Add(new Move(startSquare, targetSquare));
         }
-
-        // if (!attacksOnly)
-        // {
-        //     foreach (Move move in SpecialMoves.GetCastlingMoves())
-        //         moves.Add(move);
-        // }
     }
 
     static void GeneratePawnMoves(int startSquare)
     {
-        int direction = (friendlyColor == Piece.White) ? 1 : -1;
-        int startRank = (friendlyColor == Piece.White) ? 1 : 6;
+        int direction     = (friendlyColor == Piece.White) ? 1 : -1;
+        int startRank     = (friendlyColor == Piece.White) ? 1 : 6;
+        int promotionRank = (friendlyColor == Piece.White) ? 7 : 0;
         int file = startSquare % 8;
         int rank = startSquare / 8;
 
@@ -201,12 +196,17 @@ public static class MoveGeneration
         int oneForward = startSquare + 8 * direction;
         if (oneForward >= 0 && oneForward < 64 && Board.Squares[oneForward] == Piece.None)
         {
-            moves.Add(new Move(startSquare, oneForward));
+            if (rank + direction == promotionRank)
+                AddPromotionMoves(startSquare, oneForward);
+            else
+            {
+                moves.Add(new Move(startSquare, oneForward));
 
-            // Two squares forward from starting rank
-            int twoForward = startSquare + 16 * direction;
-            if (rank == startRank && Board.Squares[twoForward] == Piece.None)
-                moves.Add(new Move(startSquare, twoForward));
+                // Two squares forward from starting rank
+                int twoForward = startSquare + 16 * direction;
+                if (rank == startRank && Board.Squares[twoForward] == Piece.None)
+                    moves.Add(new Move(startSquare, twoForward));
+            }
         }
 
         // Captures diagonally
@@ -222,7 +222,24 @@ public static class MoveGeneration
             int targetSquare = targetRank * 8 + targetFile;
             if (!Piece.IsColor(Board.Squares[targetSquare], oppositeColor)) continue;
 
-            moves.Add(new Move(startSquare, targetSquare));
+            if (targetRank == promotionRank)
+                AddPromotionMoves(startSquare, targetSquare);
+            else
+                moves.Add(new Move(startSquare, targetSquare));
         }
+
+        foreach (Move epMove in SpecialMoves.GetEPMoves())
+        {
+            if (epMove.StartSquare == startSquare)
+                moves.Add(epMove);
+        }
+    }
+
+    static void AddPromotionMoves(int startSquare, int targetSquare)
+    {
+        moves.Add(new Move(startSquare, targetSquare, promotionType: Piece.Queen));
+        moves.Add(new Move(startSquare, targetSquare, promotionType: Piece.Rook));
+        moves.Add(new Move(startSquare, targetSquare, promotionType: Piece.Bishop));
+        moves.Add(new Move(startSquare, targetSquare, promotionType: Piece.Knight));
     }
 }

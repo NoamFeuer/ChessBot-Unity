@@ -5,6 +5,7 @@ public class MovePieces : MonoBehaviour
 {
     public static List<Move> legalMoves;
     public AudioSource moveSound;
+    public GameHandler gameHandler; // <-- assign in inspector
 
     Camera cam;
     GameObject draggedPiece;
@@ -19,6 +20,8 @@ public class MovePieces : MonoBehaviour
 
     void Update()
     {
+        if (gameHandler.promotionHandler.IsAwaitingPromotion) return; // block input during promotion menu
+
         if (Input.GetMouseButtonDown(0)) StartDrag();
         if (Input.GetMouseButton(0))     DragPiece();
         if (Input.GetMouseButtonUp(0))   DropPiece();
@@ -55,26 +58,20 @@ public class MovePieces : MonoBehaviour
 
         Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         int toIndex = Board.PositionToIndex(mousePos);
-        Move move = new Move(fromIndex, toIndex);
+        Move inputMove = new Move(fromIndex, toIndex);
 
-        if (toIndex >= 0 && toIndex < 64 && toIndex != fromIndex && IsLegalMove(move))
+        Move? matchedMove = FindLegalMove(inputMove);
+
+        if (toIndex >= 0 && toIndex < 64 && toIndex != fromIndex && matchedMove != null)
         {
             moveSound.Play();
 
-            if (pieceObjects.ContainsKey(toIndex))
-            {
-                Destroy(pieceObjects[toIndex]);
-                pieceObjects.Remove(toIndex);
-            }
-
-            pieceObjects.Remove(fromIndex);
-            pieceObjects[toIndex] = draggedPiece;
-
-            Board.MakeMove(move, true);
-
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(toIndex);
 
-            CheckGameState();
+            // Route through GameHandler instead of Board.MakeMove directly
+            gameHandler.TryApplyMove(matchedMove.Value);
+
+            // CheckGameState is now called from GameHandler after move is applied
         }
         else
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(fromIndex);
@@ -83,24 +80,17 @@ public class MovePieces : MonoBehaviour
         legalMoves = null;
     }
 
-    void CheckGameState()
+    static Move? FindLegalMove(Move input)
     {
-        bool inCheck      = MoveGeneration.IsKingInCheck(Board.colorToMove);
-        bool hasLegalMoves = MoveGeneration.GenerateLegalMoves().Count > 0;
+        if (legalMoves == null) return null;
 
-        if (!hasLegalMoves)
+        foreach (Move legal in legalMoves)
         {
-            if (inCheck)
-                Debug.Log("Checkmate! " + (Board.colorToMove == Piece.White ? "Black" : "White") + " wins!");
-            else
-                Debug.Log("Stalemate!");
+            if (legal.StartSquare == input.StartSquare &&
+                legal.TargetSquare == input.TargetSquare)
+                return legal;
         }
-        else if (inCheck)
-            Debug.Log((Board.colorToMove == Piece.White ? "White" : "Black") + " is in check!");
-    }
 
-    public static bool IsLegalMove(Move move)
-    {
-        return legalMoves != null && legalMoves.Contains(move);
+        return null;
     }
 }
