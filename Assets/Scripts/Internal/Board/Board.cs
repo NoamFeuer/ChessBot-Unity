@@ -13,7 +13,8 @@ public static class Board
 
     public static bool MakeMove(Move move)
     {
-        int movingPiece = Squares[move.StartSquare];
+        int movingPiece   = Squares[move.StartSquare];
+        int capturedPiece = Squares[move.TargetSquare]; // Save BEFORE overwriting
 
         Squares[move.TargetSquare] = movingPiece;
         Squares[move.StartSquare]  = Piece.None;
@@ -27,34 +28,55 @@ public static class Board
 
             if (MovePieces.pieceObjects.ContainsKey(capturedPawnSquare))
             {
-                UnityEngine.Object.Destroy(MovePieces.pieceObjects[capturedPawnSquare]);
+                Object.Destroy(MovePieces.pieceObjects[capturedPawnSquare]);
                 MovePieces.pieceObjects.Remove(capturedPawnSquare);
             }
         }
 
         // Castling: move the rook
-        if (Piece.IsType(movingPiece, Piece.King))
+        if (move.CastlingMove)
         {
-            int kingIndex = colorToMove == Piece.White ? 4 : 60;
+            int backRank   = (colorToMove == Piece.White) ? 0 : 7; // Fix: white=0, black=7
+            int kingSquare = backRank * 8 + 4;
 
-            if (move.TargetSquare == kingIndex + 2)
+            if (move.TargetSquare == kingSquare + 2) // Kingside
             {
-                Squares[kingIndex + 1] = Squares[kingIndex + 3];
-                Squares[kingIndex + 3] = Piece.None;
+                Squares[backRank * 8 + 5] = Squares[backRank * 8 + 7];
+                Squares[backRank * 8 + 7] = Piece.None;
             }
-            else if (move.TargetSquare == kingIndex - 2)
+            else if (move.TargetSquare == kingSquare - 2) // Queenside
             {
-                Squares[kingIndex - 1] = Squares[kingIndex - 4];
-                Squares[kingIndex - 4] = Piece.None;
+                Squares[backRank * 8 + 3] = Squares[backRank * 8 + 0];
+                Squares[backRank * 8 + 0] = Piece.None;
             }
         }
 
-        // Update EP square BEFORE flipping color (piece still belongs to current color)
+        // Update both En Passant moves and casteling
         SpecialMoves.UpdateEnPassant(move);
+        SpecialMoves.UpdateCastling(move, capturedPiece);
 
         colorToMove = colorToMove == Piece.White ? Piece.Black : Piece.White;
 
         return true;
+    }
+
+    public static int FindKing(int color)
+    {
+        for (int i = 0; i < 64; i++)
+        {
+            if (Squares[i] == (color | Piece.King))
+                return i;
+        }
+        return -1;
+    }
+
+    public static bool IsKingInCheck(int color)
+    {
+        int kingSquare = FindKing(color);
+        if (kingSquare == -1) return false;
+
+        int attackerColor = (color == Piece.White) ? Piece.Black : Piece.White;
+        return IsSquareAttacked(kingSquare, attackerColor);
     }
 
     public static bool IsSquareAttacked(int squareIndex, int attackerColor)

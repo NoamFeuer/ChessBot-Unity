@@ -5,7 +5,7 @@ public class MovePieces : MonoBehaviour
 {
     public static List<Move> legalMoves;
     public AudioSource moveSound;
-    public GameHandler gameHandler; // <-- assign in inspector
+    public GameHandler gameHandler;
 
     Camera cam;
     GameObject draggedPiece;
@@ -70,8 +70,6 @@ public class MovePieces : MonoBehaviour
 
             // Route through GameHandler instead of Board.MakeMove directly
             gameHandler.TryApplyMove(matchedMove.Value);
-
-            // CheckGameState is now called from GameHandler after move is applied
         }
         else
             draggedPiece.transform.position = (Vector3)Board.IndexToPosition(fromIndex);

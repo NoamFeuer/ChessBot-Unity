@@ -2,8 +2,15 @@ using System.Collections.Generic;
 
 public static class SpecialMoves
 {
+    public static bool[][] castlingRights = new bool[2][]
+    {
+        new bool[] { true, true }, // index 0 = black: [queenside, kingside]
+        new bool[] { true, true }  // index 1 = white: [queenside, kingside]
+    };
+
     public static int enPassantSquare = -1;
 
+    // En passant
     public static void UpdateEnPassant(Move move)
     {
         int piece = Board.Squares[move.TargetSquare];
@@ -21,8 +28,8 @@ public static class SpecialMoves
         if (enPassantSquare == -1) return epMoves;
 
         int direction = (Board.colorToMove == Piece.White) ? 1 : -1;
-        int epFile    = enPassantSquare % 8;
-        int epRank    = enPassantSquare / 8;
+        int epFile = enPassantSquare % 8;
+        int epRank = enPassantSquare / 8;
 
         int[] fileDeltas = { -1, 1 };
         foreach (int fd in fileDeltas)
@@ -43,5 +50,106 @@ public static class SpecialMoves
         }
 
         return epMoves;
+    }
+
+    public static void UpdateCastling(Move move, int capturedPiece)
+    {
+        int piece = move.MovingPiece;
+
+        // King moves — revoke both sides
+        if (Piece.IsType(piece, Piece.King))
+        {
+            int colorIndex = Piece.IsColor(piece, Piece.White) ? 1 : 0;
+            castlingRights[colorIndex][0] = false;
+            castlingRights[colorIndex][1] = false;
+        }
+
+        // Rook moves — revoke that side only
+        if (Piece.IsType(piece, Piece.Rook))
+        {
+            int start = move.StartSquare;
+            if (start == 7)  castlingRights[1][1] = false; // white kingside  (h1)
+            if (start == 0)  castlingRights[1][0] = false; // white queenside (a1)
+            if (start == 63) castlingRights[0][1] = false; // black kingside  (h8)
+            if (start == 56) castlingRights[0][0] = false; // black queenside (a8)
+        }
+
+        // Rook captured — revoke that side too (use passed-in capturedPiece)
+        if (Piece.IsType(capturedPiece, Piece.Rook))
+        {
+            int target = move.TargetSquare;
+            if (target == 7)  castlingRights[1][1] = false;
+            if (target == 0)  castlingRights[1][0] = false;
+            if (target == 63) castlingRights[0][1] = false;
+            if (target == 56) castlingRights[0][0] = false;
+        }
+    }
+
+    public static List<Move> GetCastlingMoves()
+    {
+        List<Move> moves = new List<Move>();
+
+        bool isWhite    = Board.colorToMove == Piece.White;
+        int colorIndex  = isWhite ? 1 : 0;
+        int backRank    = isWhite ? 0 : 7;
+        int kingSquare  = backRank * 8 + 4;
+
+        // Kingside
+        if (castlingRights[colorIndex][1])
+        {
+            int f = backRank * 8 + 5;
+            int g = backRank * 8 + 6;
+            int rookSquare = backRank * 8 + 7;
+
+            bool pathClear   = Board.Squares[f] == Piece.None && Board.Squares[g] == Piece.None;
+            bool rookPresent = Piece.IsType(Board.Squares[rookSquare], Piece.Rook);
+
+            if (pathClear && rookPresent)
+                moves.Add(new Move(kingSquare, g, castlingMove: true));
+        }
+
+        // Queenside
+        if (castlingRights[colorIndex][0])
+        {
+            int b = backRank * 8 + 1;
+            int c = backRank * 8 + 2;
+            int d = backRank * 8 + 3;
+            int rookSquare = backRank * 8 + 0;
+
+            bool pathClear   = Board.Squares[b] == Piece.None && Board.Squares[c] == Piece.None && Board.Squares[d] == Piece.None;
+            bool rookPresent = Piece.IsType(Board.Squares[rookSquare], Piece.Rook);
+
+            if (pathClear && rookPresent)
+                moves.Add(new Move(kingSquare, c, castlingMove: true));
+        }
+
+        return moves;
+    }
+
+    public static void ExecuteCastling(Move move)
+    {
+        bool isWhite = Board.colorToMove == Piece.White;
+        int backRank = isWhite ? 0 : 7;
+
+        int kingFrom = backRank * 8 + 4;
+        int target   = move.TargetSquare;
+
+        Board.Squares[target]   = Board.Squares[kingFrom];
+        Board.Squares[kingFrom] = Piece.None;
+
+        if (target % 8 == 6) // Kingside
+        {
+            int rookFrom = backRank * 8 + 7;
+            int rookTo   = backRank * 8 + 5;
+            Board.Squares[rookTo]   = Board.Squares[rookFrom];
+            Board.Squares[rookFrom] = Piece.None;
+        }
+        else // Queenside
+        {
+            int rookFrom = backRank * 8 + 0;
+            int rookTo   = backRank * 8 + 3;
+            Board.Squares[rookTo]   = Board.Squares[rookFrom];
+            Board.Squares[rookFrom] = Piece.None;
+        }
     }
 }

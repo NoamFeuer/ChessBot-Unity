@@ -9,12 +9,11 @@ public class PawnPromotion : MonoBehaviour
     public Button rookButton;
     public Button bishopButton;
     public Button knightButton;
-
-    private Move pendingMove;
-    private bool awaitingPromotion = false;
-    private Action<Move> onPromotionChosen;
-
     public bool IsAwaitingPromotion => awaitingPromotion;
+
+    Move pendingMove;
+    bool awaitingPromotion = false;
+    Action<Move> onPromotionChosen;
 
     void Awake()
     {
@@ -34,7 +33,7 @@ public class PawnPromotion : MonoBehaviour
         promotionPanel.SetActive(true);
     }
 
-    private void Confirm(int pieceType)
+    void Confirm(int pieceType)
     {
         awaitingPromotion = false;
         promotionPanel.SetActive(false);
@@ -43,7 +42,7 @@ public class PawnPromotion : MonoBehaviour
         Move finalMove = new Move(
             pendingMove.StartSquare,
             pendingMove.TargetSquare,
-            pendingMove.CastelingMove,
+            pendingMove.CastlingMove,
             pendingMove.EnPassantMove,
             promotionType: pieceType
         );

@@ -16,21 +16,6 @@ public static class Draw
         return square;
     }
 
-    static Sprite CreateSquareSprite(float size)
-    {
-        int pixelSize = 10;
-        Texture2D texture = new Texture2D(pixelSize, pixelSize);
-
-        Color[] pixels = new Color[pixelSize * pixelSize];
-        for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = Color.white;
-
-        texture.SetPixels(pixels);
-        texture.Apply();
-
-        return Sprite.Create(texture, new Rect(0, 0, pixelSize, pixelSize), new Vector2(0.5f, 0.5f), pixelSize / size);
-    }
-
     public static GameObject Piece(Texture2D pieceTexture, Vector2 position, Transform parent, float size = 1f)
     {
         GameObject piece = new GameObject("Piece");
@@ -49,5 +34,20 @@ public static class Draw
         renderer.sortingOrder = 1;
 
         return piece;
+    }
+
+    static Sprite CreateSquareSprite(float size)
+    {
+        int pixelSize = 10;
+        Texture2D texture = new Texture2D(pixelSize, pixelSize);
+
+        Color[] pixels = new Color[pixelSize * pixelSize];
+        for (int i = 0; i < pixels.Length; i++)
+            pixels[i] = Color.white;
+
+        texture.SetPixels(pixels);
+        texture.Apply();
+
+        return Sprite.Create(texture, new Rect(0, 0, pixelSize, pixelSize), new Vector2(0.5f, 0.5f), pixelSize / size);
     }
 }

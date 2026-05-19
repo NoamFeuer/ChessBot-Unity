@@ -40,36 +40,48 @@ public static class MoveGeneration
         int movingPiece   = Board.Squares[move.StartSquare];
         int capturedPiece = Board.Squares[move.TargetSquare];
 
+        // Apply the move
         Board.Squares[move.TargetSquare] = movingPiece;
         Board.Squares[move.StartSquare]  = Piece.None;
 
+        // Fix: also simulate the rook moving for castling
+        int rookFrom = -1, rookTo = -1;
+        if (move.CastlingMove)
+        {
+            bool isWhite = Board.colorToMove == Piece.White;
+            int backRank = isWhite ? 0 : 7;
+
+            if (move.TargetSquare == backRank * 8 + 6) // Kingside
+            {
+                rookFrom = backRank * 8 + 7;
+                rookTo   = backRank * 8 + 5;
+            }
+            else // Queenside
+            {
+                rookFrom = backRank * 8 + 0;
+                rookTo   = backRank * 8 + 3;
+            }
+
+            Board.Squares[rookTo]   = Board.Squares[rookFrom];
+            Board.Squares[rookFrom] = Piece.None;
+        }
+
         int attackerColor = (Board.colorToMove == Piece.White) ? Piece.Black : Piece.White;
-        int kingSquare    = FindKing(Board.colorToMove);
+        int kingSquare    = Board.FindKing(Board.colorToMove);
         bool safe         = kingSquare != -1 && !Board.IsSquareAttacked(kingSquare, attackerColor);
 
+        // Undo the move
         Board.Squares[move.StartSquare]  = movingPiece;
         Board.Squares[move.TargetSquare] = capturedPiece;
 
-        return safe;
-    }
-
-    public static int FindKing(int color)
-    {
-        for (int i = 0; i < 64; i++)
+        // Fix: undo the rook simulation too
+        if (move.CastlingMove && rookFrom != -1)
         {
-            if (Board.Squares[i] == (color | Piece.King))
-                return i;
+            Board.Squares[rookFrom] = Board.Squares[rookTo];
+            Board.Squares[rookTo]   = Piece.None;
         }
-        return -1;
-    }
 
-    public static bool IsKingInCheck(int color)
-    {
-        int kingSquare = FindKing(color);
-        if (kingSquare == -1) return false;
-
-        int attackerColor = (color == Piece.White) ? Piece.Black : Piece.White;
-        return Board.IsSquareAttacked(kingSquare, attackerColor);
+        return safe;
     }
 
     public static List<Move> GenerateMoves()
@@ -157,8 +169,8 @@ public static class MoveGeneration
 
             int targetFile = targetSquare % 8;
             int targetRank = targetSquare / 8;
-            int fileDiff = System.Math.Abs(targetFile - file);
-            int rankDiff = System.Math.Abs(targetRank - rank);
+            int fileDiff   = System.Math.Abs(targetFile - file);
+            int rankDiff   = System.Math.Abs(targetRank - rank);
             bool validJump = (fileDiff == 2 && rankDiff == 1) || (fileDiff == 1 && rankDiff == 2);
             if (!validJump) continue;
 
@@ -175,12 +187,19 @@ public static class MoveGeneration
         {
             if (PMD.NumSquaresToEdge[startSquare][directionIndex] == 0) continue;
 
-            int targetSquare = startSquare + PMD.DirectionOffsets[directionIndex];
+            int targetSquare  = startSquare + PMD.DirectionOffsets[directionIndex];
             int pieceOnTarget = Board.Squares[targetSquare];
 
             if (Piece.IsColor(pieceOnTarget, friendlyColor)) continue;
 
             moves.Add(new Move(startSquare, targetSquare));
+        }
+
+        // Don't generate castling moves when checking attacks
+        if (!attacksOnly)
+        {
+            foreach (Move move in SpecialMoves.GetCastlingMoves())
+                moves.Add(move);
         }
     }
 

@@ -4,17 +4,17 @@ public struct Move
     public readonly int TargetSquare;
     public readonly int MovingPiece;
 
-    public readonly bool CastelingMove;
+    public readonly bool CastlingMove;
     public readonly bool EnPassantMove;
     public readonly bool CaptureMove;
     public readonly bool IsPromotion;
     public readonly int PromotionType;
 
-    public Move(int startSquare, int targetSquare, bool castelingMove = false, bool enPassantMove = false, int promotionType = Piece.None)
+    public Move(int startSquare, int targetSquare, bool castlingMove = false, bool enPassantMove = false, int promotionType = Piece.None)
     {
         StartSquare = startSquare;
         TargetSquare = targetSquare;
-        CastelingMove = castelingMove;
+        CastlingMove = castlingMove;
         EnPassantMove = enPassantMove;
         PromotionType = promotionType;
 
