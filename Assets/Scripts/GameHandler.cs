@@ -3,16 +3,23 @@ using UnityEngine;
 public class GameHandler : MonoBehaviour
 {
     public enum PlayerType { Human, Bot }
+    public enum Mode { Normal, PerftTesting}
 
     public string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     public PieceDrawer pieceDrawer;
     public PawnPromotion promotionHandler;
+    public Mode mode;
     public PlayerType white;
     public PlayerType black;
 
     void Start()
     {
+
         Board.LoadPositionFromFen(fen);
+
+        if (mode == Mode.PerftTesting)
+            Debug.Log(Perft.PerftCheck(1));
+
         pieceDrawer.DrawPieces();
     }
 
