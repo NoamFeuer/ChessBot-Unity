@@ -93,6 +93,7 @@ public static class SpecialMoves
         int colorIndex  = isWhite ? 1 : 0;
         int backRank    = isWhite ? 0 : 7;
         int kingSquare  = backRank * 8 + 4;
+        int attackColor = isWhite ? Piece.Black : Piece.White; // opponent's color
 
         // Kingside
         if (castlingRights[colorIndex][1])
@@ -101,10 +102,13 @@ public static class SpecialMoves
             int g = backRank * 8 + 6;
             int rookSquare = backRank * 8 + 7;
 
-            bool pathClear   = Board.Squares[f] == Piece.None && Board.Squares[g] == Piece.None;
-            bool rookPresent = Piece.IsType(Board.Squares[rookSquare], Piece.Rook);
+            bool pathClear      = Board.Squares[f] == Piece.None && Board.Squares[g] == Piece.None;
+            bool rookPresent    = Piece.IsType(Board.Squares[rookSquare], Piece.Rook);
+            bool notUnderAttack = !Board.IsSquareAttacked(kingSquare, attackColor)
+                            && !Board.IsSquareAttacked(f, attackColor)
+                            && !Board.IsSquareAttacked(g, attackColor);
 
-            if (pathClear && rookPresent)
+            if (pathClear && rookPresent && notUnderAttack)
                 moves.Add(new Move(kingSquare, g, castlingMove: true));
         }
 
@@ -116,10 +120,13 @@ public static class SpecialMoves
             int d = backRank * 8 + 3;
             int rookSquare = backRank * 8 + 0;
 
-            bool pathClear   = Board.Squares[b] == Piece.None && Board.Squares[c] == Piece.None && Board.Squares[d] == Piece.None;
-            bool rookPresent = Piece.IsType(Board.Squares[rookSquare], Piece.Rook);
+            bool pathClear      = Board.Squares[b] == Piece.None && Board.Squares[c] == Piece.None && Board.Squares[d] == Piece.None;
+            bool rookPresent    = Piece.IsType(Board.Squares[rookSquare], Piece.Rook);
+            bool notUnderAttack = !Board.IsSquareAttacked(kingSquare, attackColor)
+                            && !Board.IsSquareAttacked(d, attackColor)
+                            && !Board.IsSquareAttacked(c, attackColor);
 
-            if (pathClear && rookPresent)
+            if (pathClear && rookPresent && notUnderAttack)
                 moves.Add(new Move(kingSquare, c, castlingMove: true));
         }
 
