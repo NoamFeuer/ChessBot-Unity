@@ -136,7 +136,7 @@ public static class Board
 
         for (int startSquare = 0; startSquare < 64; startSquare++)
         {
-            int piece = Board.Squares[startSquare];
+            int piece = Squares[startSquare];
             if (!Piece.IsColor(piece, attackerColor)) continue;
 
             List<Move> attacks = MoveGeneration.GenerateMovesForPiece(startSquare, piece, attacksOnly: true);
@@ -166,22 +166,25 @@ public static class Board
 
     public static void LoadPositionFromFen(string fen)
     {
+        Squares = new int[64];
+
         int file = 0;
-        int rank = 7;
+        int rank = 0;
 
         foreach (char c in fen)
         {
             if (c == '/')
             {
                 file = 0;
-                rank--;
+                rank++;
             }
             else if (char.IsDigit(c))
                 file += (int)char.GetNumericValue(c);
             else
             {
                 int color = char.IsUpper(c) ? Piece.White : Piece.Black;
-                int type  = char.ToLower(c) switch
+
+                int type = char.ToLower(c) switch
                 {
                     'k' => Piece.King,
                     'q' => Piece.Queen,
@@ -192,7 +195,7 @@ public static class Board
                     _   => Piece.None
                 };
 
-                Squares[rank * 8 + file] = color | type;
+                Squares[(7 - rank) * 8 + file] = color | type;
                 file++;
             }
         }
@@ -208,3 +211,4 @@ public static class Board
         return rank * 8 + file;
     }
 }
+ 

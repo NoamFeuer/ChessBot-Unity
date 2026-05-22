@@ -111,9 +111,11 @@ public static class MoveGeneration
     public static List<Move> GenerateMovesForPiece(int startSquare, int piece, bool attacksOnly = false)
     {
         List<Move> previousMoves = moves;
+        int savedFriendly = friendlyColor; // save
+        int savedOpposite = oppositeColor; // save
+        
         moves = new List<Move>();
-
-        friendlyColor = Board.colorToMove;
+        friendlyColor = Piece.GetColor(piece);
         oppositeColor = (friendlyColor == Piece.White) ? Piece.Black : Piece.White;
 
         if (Piece.IsType(piece, Piece.Pawn))
@@ -121,22 +123,23 @@ public static class MoveGeneration
         else if (Piece.IsType(piece, Piece.Knight))
             GenerateKnightMoves(startSquare);
         else if (Piece.IsType(piece, Piece.Bishop) ||
-                 Piece.IsType(piece, Piece.Queen)  ||
-                 Piece.IsType(piece, Piece.Rook))
+                Piece.IsType(piece, Piece.Queen)  ||
+                Piece.IsType(piece, Piece.Rook))
             GenerateSlidingMoves(startSquare, piece);
         else if (Piece.IsType(piece, Piece.King))
             GenerateKingMoves(startSquare, attacksOnly);
 
         List<Move> pieceMoves = moves;
         moves = previousMoves;
-
+        friendlyColor = savedFriendly; // restore
+        oppositeColor = savedOpposite; // restore
         return pieceMoves;
     }
 
     static void GenerateSlidingMoves(int startSquare, int piece)
     {
         int startDirIndex = Piece.IsType(piece, Piece.Bishop) ? 4 : 0;
-        int endDirIndex   = Piece.IsType(piece, Piece.Rook)   ? 4 : 8;
+        int endDirIndex = Piece.IsType(piece, Piece.Rook)   ? 4 : 8;
 
         for (int directionIndex = startDirIndex; directionIndex < endDirIndex; directionIndex++)
         {
