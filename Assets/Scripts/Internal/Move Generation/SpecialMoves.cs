@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class SpecialMoves
 {
     public static bool[][] castlingRights = new bool[2][]
     {
-        new bool[] { true, true }, // index 0 = black: [queenside, kingside]
-        new bool[] { true, true }  // index 1 = white: [queenside, kingside]
+        new bool[] { true, true },
+        new bool[] { true, true }
     };
 
     public static int enPassantSquare = -1;
@@ -13,9 +14,7 @@ public static class SpecialMoves
     // En passant
     public static void UpdateEnPassant(Move move)
     {
-        int piece = Board.Squares[move.TargetSquare];
-
-        if (Piece.IsType(piece, Piece.Pawn) && System.Math.Abs(move.TargetSquare - move.StartSquare) == 16)
+        if (Piece.IsType(move.MovingPiece, Piece.Pawn) && System.Math.Abs(move.TargetSquare - move.StartSquare) == 16)
             enPassantSquare = (move.StartSquare + move.TargetSquare) / 2;
         else
             enPassantSquare = -1;
@@ -26,6 +25,8 @@ public static class SpecialMoves
         List<Move> epMoves = new List<Move>();
 
         if (enPassantSquare == -1) return epMoves;
+        
+        Debug.Log($"EP active: square={enPassantSquare} color={Board.colorToMove} historyDepth={Board.history.Count}");
 
         int direction = (Board.colorToMove == Piece.White) ? 1 : -1;
         int epFile = enPassantSquare % 8;

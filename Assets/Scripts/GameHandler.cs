@@ -18,7 +18,7 @@ public class GameHandler : MonoBehaviour
         Board.LoadPositionFromFen(fen);
 
         if (mode == Mode.PerftTestingInfo)
-            Perft.PerftDivide(depth, "d5d6");
+            PerftCompare.Compare(depth);
         else if (mode == Mode.PerftTesting)
             Debug.Log(Perft.PerftCheck(depth));
 

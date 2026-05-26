@@ -130,7 +130,9 @@ public static class Board
     public static bool IsSquareAttacked(int squareIndex, int attackerColor)
     {
         int originalColor = colorToMove;
+        int savedEP = SpecialMoves.enPassantSquare;
         colorToMove = attackerColor;
+        SpecialMoves.enPassantSquare = -1;
 
         bool attacked = false;
 
@@ -153,6 +155,7 @@ public static class Board
         }
 
         colorToMove = originalColor;
+        SpecialMoves.enPassantSquare = savedEP;
         return attacked;
     }
 
@@ -167,11 +170,21 @@ public static class Board
     public static void LoadPositionFromFen(string fen)
     {
         Squares = new int[64];
+        colorToMove = Piece.White;
+        SpecialMoves.enPassantSquare = -1;
+        history.Clear();
+        SpecialMoves.castlingRights = new bool[2][]
+        {
+            new bool[] { false, false }, // black: [queenside, kingside]
+            new bool[] { false, false }  // white: [queenside, kingside]
+        };
 
+        string[] sections = fen.Split(' ');
+
+        // Section 0 — piece placement
         int file = 0;
         int rank = 0;
-
-        foreach (char c in fen)
+        foreach (char c in sections[0])
         {
             if (c == '/')
             {
@@ -183,7 +196,6 @@ public static class Board
             else
             {
                 int color = char.IsUpper(c) ? Piece.White : Piece.Black;
-
                 int type = char.ToLower(c) switch
                 {
                     'k' => Piece.King,
@@ -194,10 +206,36 @@ public static class Board
                     'p' => Piece.Pawn,
                     _   => Piece.None
                 };
-
                 Squares[(7 - rank) * 8 + file] = color | type;
                 file++;
             }
+        }
+
+        // Section 1 — side to move
+        if (sections.Length > 1)
+            colorToMove = sections[1] == "b" ? Piece.Black : Piece.White;
+
+        // Section 2 — castling rights
+        if (sections.Length > 2)
+        {
+            foreach (char c in sections[2])
+            {
+                switch (c)
+                {
+                    case 'K': SpecialMoves.castlingRights[1][1] = true; break; // white kingside
+                    case 'Q': SpecialMoves.castlingRights[1][0] = true; break; // white queenside
+                    case 'k': SpecialMoves.castlingRights[0][1] = true; break; // black kingside
+                    case 'q': SpecialMoves.castlingRights[0][0] = true; break; // black queenside
+                }
+            }
+        }
+
+        // Section 3 — en passant square
+        if (sections.Length > 3 && sections[3] != "-")
+        {
+            int epFile = sections[3][0] - 'a';
+            int epRank = sections[3][1] - '1';
+            SpecialMoves.enPassantSquare = epRank * 8 + epFile;
         }
     }
 

@@ -39,30 +39,30 @@ public static class MoveGeneration
     {
         int movingPiece   = Board.Squares[move.StartSquare];
         int capturedPiece = Board.Squares[move.TargetSquare];
+        int savedEP       = SpecialMoves.enPassantSquare;
 
-        // Apply the move
         Board.Squares[move.TargetSquare] = movingPiece;
         Board.Squares[move.StartSquare]  = Piece.None;
 
-        // Fix: also simulate the rook moving for castling
-        int rookFrom = -1, rookTo = -1;
+        int rookFrom = -1, rookTo = -1, rookPiece = Piece.None;
         if (move.CastlingMove)
         {
             bool isWhite = Board.colorToMove == Piece.White;
             int backRank = isWhite ? 0 : 7;
 
-            if (move.TargetSquare == backRank * 8 + 6) // Kingside
+            if (move.TargetSquare == backRank * 8 + 6)
             {
                 rookFrom = backRank * 8 + 7;
                 rookTo   = backRank * 8 + 5;
             }
-            else // Queenside
+            else
             {
                 rookFrom = backRank * 8 + 0;
                 rookTo   = backRank * 8 + 3;
             }
 
-            Board.Squares[rookTo]   = Board.Squares[rookFrom];
+            rookPiece               = Board.Squares[rookFrom];
+            Board.Squares[rookTo]   = rookPiece;
             Board.Squares[rookFrom] = Piece.None;
         }
 
@@ -70,16 +70,16 @@ public static class MoveGeneration
         int kingSquare    = Board.FindKing(Board.colorToMove);
         bool safe         = kingSquare != -1 && !Board.IsSquareAttacked(kingSquare, attackerColor);
 
-        // Undo the move
         Board.Squares[move.StartSquare]  = movingPiece;
         Board.Squares[move.TargetSquare] = capturedPiece;
 
-        // Fix: undo the rook simulation too
         if (move.CastlingMove && rookFrom != -1)
         {
-            Board.Squares[rookFrom] = Board.Squares[rookTo];
+            Board.Squares[rookFrom] = rookPiece;
             Board.Squares[rookTo]   = Piece.None;
         }
+
+        SpecialMoves.enPassantSquare = savedEP;
 
         return safe;
     }
