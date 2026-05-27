@@ -44,6 +44,15 @@ public static class MoveGeneration
         Board.Squares[move.TargetSquare] = movingPiece;
         Board.Squares[move.StartSquare]  = Piece.None;
 
+        int capturedPawnSquare = -1;
+        if (move.EnPassantMove)
+        {
+            int movingColor = Piece.GetColor(movingPiece);
+            int direction = (movingColor == Piece.White) ? 1 : -1;
+            capturedPawnSquare = move.TargetSquare - 8 * direction;
+            Board.Squares[capturedPawnSquare] = Piece.None;
+        }
+
         int rookFrom = -1, rookTo = -1, rookPiece = Piece.None;
         if (move.CastlingMove)
         {
@@ -72,6 +81,13 @@ public static class MoveGeneration
 
         Board.Squares[move.StartSquare]  = movingPiece;
         Board.Squares[move.TargetSquare] = capturedPiece;
+
+        if (move.EnPassantMove && capturedPawnSquare != -1)
+        {
+            int capturedPawn = (Board.colorToMove == Piece.White) ? (Piece.Black | Piece.Pawn)
+                                                                : (Piece.White | Piece.Pawn);
+            Board.Squares[capturedPawnSquare] = capturedPawn;
+        }
 
         if (move.CastlingMove && rookFrom != -1)
         {
@@ -111,8 +127,8 @@ public static class MoveGeneration
     public static List<Move> GenerateMovesForPiece(int startSquare, int piece, bool attacksOnly = false)
     {
         List<Move> previousMoves = moves;
-        int savedFriendly = friendlyColor; // save
-        int savedOpposite = oppositeColor; // save
+        int savedFriendly = friendlyColor;
+        int savedOpposite = oppositeColor;
         
         moves = new List<Move>();
         friendlyColor = Piece.GetColor(piece);
@@ -131,8 +147,8 @@ public static class MoveGeneration
 
         List<Move> pieceMoves = moves;
         moves = previousMoves;
-        friendlyColor = savedFriendly; // restore
-        oppositeColor = savedOpposite; // restore
+        friendlyColor = savedFriendly;
+        oppositeColor = savedOpposite;
         return pieceMoves;
     }
 

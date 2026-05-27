@@ -11,7 +11,6 @@ public static class SpecialMoves
 
     public static int enPassantSquare = -1;
 
-    // En passant
     public static void UpdateEnPassant(Move move)
     {
         if (Piece.IsType(move.MovingPiece, Piece.Pawn) && System.Math.Abs(move.TargetSquare - move.StartSquare) == 16)
@@ -24,9 +23,7 @@ public static class SpecialMoves
     {
         List<Move> epMoves = new List<Move>();
 
-        if (enPassantSquare == -1) return epMoves;
-        
-        Debug.Log($"EP active: square={enPassantSquare} color={Board.colorToMove} historyDepth={Board.history.Count}");
+        if (enPassantSquare == -1) return epMoves; 
 
         int direction = (Board.colorToMove == Piece.White) ? 1 : -1;
         int epFile = enPassantSquare % 8;
@@ -57,7 +54,7 @@ public static class SpecialMoves
     {
         int piece = move.MovingPiece;
 
-        // King moves — revoke both sides
+        // King moves, revoke both sides
         if (Piece.IsType(piece, Piece.King))
         {
             int colorIndex = Piece.IsColor(piece, Piece.White) ? 1 : 0;
@@ -65,7 +62,7 @@ public static class SpecialMoves
             castlingRights[colorIndex][1] = false;
         }
 
-        // Rook moves — revoke that side only
+        // Rook moves, revoke that side only
         if (Piece.IsType(piece, Piece.Rook))
         {
             int start = move.StartSquare;
@@ -75,7 +72,7 @@ public static class SpecialMoves
             if (start == 56) castlingRights[0][0] = false; // black queenside (a8)
         }
 
-        // Rook captured — revoke that side too (use passed-in capturedPiece)
+        // Rook captured, revoke that side too (use passed-in capturedPiece)
         if (Piece.IsType(capturedPiece, Piece.Rook))
         {
             int target = move.TargetSquare;
@@ -94,7 +91,7 @@ public static class SpecialMoves
         int colorIndex  = isWhite ? 1 : 0;
         int backRank    = isWhite ? 0 : 7;
         int kingSquare  = backRank * 8 + 4;
-        int attackColor = isWhite ? Piece.Black : Piece.White; // opponent's color
+        int attackColor = isWhite ? Piece.Black : Piece.White;
 
         // Kingside
         if (castlingRights[colorIndex][1])
@@ -145,14 +142,14 @@ public static class SpecialMoves
         Board.Squares[target]   = Board.Squares[kingFrom];
         Board.Squares[kingFrom] = Piece.None;
 
-        if (target % 8 == 6) // Kingside
+        if (target % 8 == 6)
         {
             int rookFrom = backRank * 8 + 7;
             int rookTo   = backRank * 8 + 5;
             Board.Squares[rookTo]   = Board.Squares[rookFrom];
             Board.Squares[rookFrom] = Piece.None;
         }
-        else // Queenside
+        else
         {
             int rookFrom = backRank * 8 + 0;
             int rookTo   = backRank * 8 + 3;

@@ -10,8 +10,10 @@ public static class Perft
 
         List<Move> moves = MoveGeneration.GenerateLegalMoves();
 
-        ulong nodes = 0;
+        if (moves.Count == 0)
+            return 0UL;  // add this — stalemate/checkmate = 0 nodes
 
+        ulong nodes = 0;
         foreach (Move move in moves)
         {
             Board.MakeMove(move);
@@ -21,6 +23,7 @@ public static class Perft
 
         return nodes;
     }
+
     public static void PerftDivide(int depth, string filterMove = "")
     {
         List<Move> moveList = MoveGeneration.GenerateLegalMoves();

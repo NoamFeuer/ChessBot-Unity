@@ -14,14 +14,13 @@ public class GameHandler : MonoBehaviour
     public PlayerType black;
 
     void Start()
-    {
+    {        
         Board.LoadPositionFromFen(fen);
 
         if (mode == Mode.PerftTestingInfo)
-            PerftCompare.Compare(depth);
+            Perft.PerftDivide(depth);
         else if (mode == Mode.PerftTesting)
             Debug.Log(Perft.PerftCheck(depth));
-
         pieceDrawer.DrawPieces();
     }
 

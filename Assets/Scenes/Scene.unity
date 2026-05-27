@@ -1265,11 +1265,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39462ad46c5208f419d98a5a5622795e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameHandler
-  fen: r3k2r/p1ppqpb1/bn1Ppnp1/4N3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq -
+  fen: r3k2r/p1ppqpb1/bn1Ppnp1/4N3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w KQkq -
   pieceDrawer: {fileID: 1178806995}
   promotionHandler: {fileID: 1353421865}
-  mode: 1
-  depth: 3
+  mode: 2
+  depth: 2
   white: 0
   black: 0
 --- !u!1 &2145758124
