@@ -1119,6 +1119,7 @@ GameObject:
   - component: {fileID: 2121631734}
   - component: {fileID: 2121631733}
   - component: {fileID: 2121631735}
+  - component: {fileID: 2121631736}
   - component: {fileID: 2121631732}
   m_Layer: 0
   m_Name: GameHandler
@@ -1265,13 +1266,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39462ad46c5208f419d98a5a5622795e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameHandler
-  fen: r3k2r/p1ppqpb1/bn1Ppnp1/4N3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R w KQkq -
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
   pieceDrawer: {fileID: 1178806995}
   promotionHandler: {fileID: 1353421865}
-  mode: 2
+  mode: 0
   depth: 2
+  botDepth: 4
   white: 0
-  black: 0
+  black: 1
+--- !u!114 &2121631736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2121631731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67584c691cd9cba44b83bfd795b2ca46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotManager
+  gameHandler: {fileID: 2121631735}
 --- !u!1 &2145758124
 GameObject:
   m_ObjectHideFlags: 0

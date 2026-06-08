@@ -8,20 +8,23 @@ public class GameHandlerEditor : Editor
     {
         GameHandler handler = (GameHandler)target;
 
-        handler.fen         = EditorGUILayout.TextField("Fen", handler.fen);
-        handler.pieceDrawer = (PieceDrawer)EditorGUILayout.ObjectField("Piece Drawer", handler.pieceDrawer, typeof(PieceDrawer), true);
+        handler.fen              = EditorGUILayout.TextField("Fen", handler.fen);
+        handler.pieceDrawer      = (PieceDrawer)EditorGUILayout.ObjectField("Piece Drawer", handler.pieceDrawer, typeof(PieceDrawer), true);
         handler.promotionHandler = (PawnPromotion)EditorGUILayout.ObjectField("Promotion Handler", handler.promotionHandler, typeof(PawnPromotion), true);
-        handler.mode        = (GameHandler.Mode)EditorGUILayout.EnumPopup("Mode", handler.mode);
+        handler.mode             = (GameHandler.Mode)EditorGUILayout.EnumPopup("Mode", handler.mode);
 
-        bool isPerft = handler.mode == GameHandler.Mode.PerftTesting || 
+        bool isPerft = handler.mode == GameHandler.Mode.PerftTesting ||
                        handler.mode == GameHandler.Mode.PerftTestingInfo;
 
         if (isPerft)
+        {
             handler.depth = EditorGUILayout.IntField("Depth", handler.depth);
+        }
         else
         {
-            handler.white = (GameHandler.PlayerType)EditorGUILayout.EnumPopup("White", handler.white);
-            handler.black = (GameHandler.PlayerType)EditorGUILayout.EnumPopup("Black", handler.black);
+            handler.white    = (GameHandler.PlayerType)EditorGUILayout.EnumPopup("White", handler.white);
+            handler.black    = (GameHandler.PlayerType)EditorGUILayout.EnumPopup("Black", handler.black);
+            handler.botDepth = EditorGUILayout.IntField("Bot Depth", handler.botDepth);
         }
 
         if (GUI.changed)

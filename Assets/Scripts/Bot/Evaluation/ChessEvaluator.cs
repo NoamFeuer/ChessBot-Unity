@@ -1,0 +1,104 @@
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+public static class ChessEvaluator
+{
+    private static InferenceSession session;
+
+    private static int GetPlane(int piece)
+    {
+        int type  = piece & 0b00111;
+        int color = piece & 0b11000;
+
+        int typeIndex = type switch
+        {
+            Piece.Pawn   => 0,
+            Piece.Knight => 1,
+            Piece.Bishop => 2,
+            Piece.Rook   => 3,
+            Piece.Queen  => 4,
+            Piece.King   => 5,
+            _            => -1
+        };
+
+        if (typeIndex == -1) return -1;
+        return color == Piece.White ? typeIndex : typeIndex + 6;
+    }
+
+    public static float[,,] EncodeBoard()
+    {
+        float[,,] planes = new float[19, 8, 8];
+
+        // Planes 0-11: piece positions
+        for (int sq = 0; sq < 64; sq++)
+        {
+            int piece = Board.Squares[sq];
+            if (piece == Piece.None) continue;
+
+            int plane = GetPlane(piece);
+            if (plane == -1) continue;
+
+            planes[plane, sq / 8, sq % 8] = 1f;
+        }
+
+        // Plane 12: squares attacked by white
+        // Plane 13: squares attacked by black
+        for (int sq = 0; sq < 64; sq++)
+        {
+            if (Board.IsSquareAttacked(sq, Piece.White))
+                planes[12, sq / 8, sq % 8] = 1f;
+            if (Board.IsSquareAttacked(sq, Piece.Black))
+                planes[13, sq / 8, sq % 8] = 1f;
+        }
+
+        // Plane 14: en passant square
+        int ep = SpecialMoves.enPassantSquare;
+        if (ep != -1)
+            planes[14, ep / 8, ep % 8] = 1f;
+
+        // Planes 15-18: castling rights
+        if (SpecialMoves.castlingRights[1][1]) Fill(planes, 15);  // white kingside
+        if (SpecialMoves.castlingRights[1][0]) Fill(planes, 16);  // white queenside
+        if (SpecialMoves.castlingRights[0][1]) Fill(planes, 17);  // black kingside
+        if (SpecialMoves.castlingRights[0][0]) Fill(planes, 18);  // black queenside
+
+        return planes;
+    }
+
+    private static void Fill(float[,,] planes, int planeIdx)
+    {
+        for (int r = 0; r < 8; r++)
+            for (int f = 0; f < 8; f++)
+                planes[planeIdx, r, f] = 1f;
+    }
+
+    public static void Initialize(string modelPath)
+    {
+        session = new InferenceSession(modelPath);
+        Debug.Log("Chess evaluator loaded.");
+    }
+
+    public static float Evaluate()
+    {
+        float[,,] planes = EncodeBoard();
+        var tensor = new DenseTensor<float>(new[] { 1, 19, 8, 8 });
+
+        for (int p = 0; p < 19; p++)
+            for (int r = 0; r < 8; r++)
+                for (int f = 0; f < 8; f++)
+                    tensor[0, p, r, f] = planes[p, r, f];
+
+        var inputs = new List<NamedOnnxValue> {
+            NamedOnnxValue.CreateFromTensor("board", tensor)
+        };
+
+        using var results = session.Run(inputs);
+        float score = results.First().AsEnumerable<float>().First() * 1500f;
+        return Board.colorToMove == Piece.White ? score : -score;
+    }
+
+    public static void Shutdown() => session?.Dispose();
+}
