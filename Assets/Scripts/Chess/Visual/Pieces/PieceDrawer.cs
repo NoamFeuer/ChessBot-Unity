@@ -15,15 +15,15 @@ public class PieceDrawer : MonoBehaviour
         }
         MovePieces.pieceObjects.Clear();
 
-        for (int i = 0; i < Board.Squares.Length; i++)
+        for (int i = 0; i < Position.Squares.Length; i++)
         {
-            int square = Board.Squares[i];
+            int square = Position.Squares[i];
             if (square == Piece.None) continue;
 
             Texture2D texture = pieceTextures.Get(square);
             if (texture == null) continue;
 
-            Vector2 position = Board.IndexToPosition(i);
+            Vector2 position = Position.IndexToPosition(i);
             GameObject piece = Draw.Piece(texture, position, transform, size);
             MovePieces.pieceObjects[i] = piece;
         }

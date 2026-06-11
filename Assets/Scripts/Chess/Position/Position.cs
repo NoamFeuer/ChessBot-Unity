@@ -1,109 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public static class Board
+public static class Position 
 {
     public static Stack<GameHistory> history = new Stack<GameHistory>();
     public static int[] Squares;
     public static int colorToMove = Piece.White;
 
-    static Board()
+    static Position()
     {
         Squares = new int[64];
-    }
-
-    public static bool MakeMove(Move move)
-    {
-        int movingPiece   = Squares[move.StartSquare];
-        int capturedPiece = Squares[move.TargetSquare];
-
-        int capturedPawnSquare = -1;
-
-        if (move.EnPassantMove)
-        {
-            int direction = (colorToMove == Piece.White) ? 1 : -1;
-            capturedPawnSquare = move.TargetSquare - 8 * direction;
-        }
-
-        history.Push(new GameHistory(
-            movingPiece,
-            capturedPiece,
-            capturedPawnSquare,
-            SpecialMoves.enPassantSquare,
-            SpecialMoves.castlingRights
-        ));
-
-        Squares[move.TargetSquare] = movingPiece;
-        Squares[move.StartSquare]  = Piece.None;
-
-        if (move.PromotionType != Piece.None)
-            Squares[move.TargetSquare] = Piece.GetColor(movingPiece) | move.PromotionType;
-
-        if (move.EnPassantMove)
-            Squares[capturedPawnSquare] = Piece.None;
-
-        if (move.CastlingMove)
-        {
-            int backRank   = (colorToMove == Piece.White) ? 0 : 7;
-            int kingSquare = backRank * 8 + 4;
-
-            if (move.TargetSquare == kingSquare + 2)
-            {
-                Squares[backRank * 8 + 5] = Squares[backRank * 8 + 7];
-                Squares[backRank * 8 + 7] = Piece.None;
-            }
-            else if (move.TargetSquare == kingSquare - 2)
-            {
-                Squares[backRank * 8 + 3] = Squares[backRank * 8 + 0];
-                Squares[backRank * 8 + 0] = Piece.None;
-            }
-        }
-
-        SpecialMoves.UpdateEnPassant(move);
-        SpecialMoves.UpdateCastling(move, capturedPiece);
-
-        colorToMove = (colorToMove == Piece.White) ? Piece.Black : Piece.White;
-
-        return true;
-    }
-
-    public static void UndoMove(Move move)
-    {
-        if (history.Count == 0) return;
-
-        GameHistory state = history.Pop();
-
-        colorToMove = colorToMove == Piece.White ? Piece.Black : Piece.White;
- 
-        Squares[move.StartSquare]  = state.movingPiece;
-        Squares[move.TargetSquare] = state.capturedPiece;
-
-        if (move.EnPassantMove && state.capturedPawnSquare != -1)
-        {
-            int capturedPawn = (colorToMove == Piece.White) ? (Piece.Black | Piece.Pawn)
-                                                            : (Piece.White | Piece.Pawn);
-            Squares[state.capturedPawnSquare] = capturedPawn;
-        }
-
-        if (move.CastlingMove)
-        {
-            int backRank   = (colorToMove == Piece.White) ? 0 : 7;
-            int kingSquare = backRank * 8 + 4;
-
-            if (move.TargetSquare == kingSquare + 2)
-            {
-                Squares[backRank * 8 + 7] = Squares[backRank * 8 + 5];
-                Squares[backRank * 8 + 5] = Piece.None;
-            }
-            else
-            {
-                Squares[backRank * 8 + 0] = Squares[backRank * 8 + 3];
-                Squares[backRank * 8 + 3] = Piece.None;
-            }
-        }
-
-        SpecialMoves.enPassantSquare = state.enPassantSquare;
-        SpecialMoves.castlingRights  = state.castlingRights;
     }
 
     public static int FindKing(int color)

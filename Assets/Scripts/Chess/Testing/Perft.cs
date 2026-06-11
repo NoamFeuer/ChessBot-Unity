@@ -16,9 +16,9 @@ public static class Perft
         ulong nodes = 0;
         foreach (Move move in moves)
         {
-            Board.MakeMove(move);
+            MoveMaker.MakeMove(move);
             nodes += PerftCheck(depth - 1);
-            Board.UndoMove(move);
+            MoveMaker.UndoMove(move);
         }
 
         return nodes;
@@ -37,9 +37,9 @@ public static class Perft
 
             if (filterMove != "" && name != filterMove) continue;
 
-            Board.MakeMove(move);
+            MoveMaker.MakeMove(move);
             ulong nodes = PerftCheck(depth - 1);
-            Board.UndoMove(move);
+            MoveMaker.UndoMove(move);
 
             Debug.Log($"{name}: {nodes}");
             total += nodes;

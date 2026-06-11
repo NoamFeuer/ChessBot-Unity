@@ -19,7 +19,7 @@ public struct Move
         PromotionType = promotionType;
 
         IsPromotion = promotionType != Piece.None;
-        CaptureMove = Board.Squares[targetSquare] != Piece.None;
-        MovingPiece = Board.Squares[startSquare];
+        CaptureMove = Position.Squares[targetSquare] != Piece.None;
+        MovingPiece = Position.Squares[startSquare];
     }
 }

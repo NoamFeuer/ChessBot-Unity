@@ -25,7 +25,7 @@ public static class SpecialMoves
 
         if (enPassantSquare == -1) return epMoves; 
 
-        int direction = (Board.colorToMove == Piece.White) ? 1 : -1;
+        int direction = (Position.colorToMove == Piece.White) ? 1 : -1;
         int epFile = enPassantSquare % 8;
         int epRank = enPassantSquare / 8;
 
@@ -39,10 +39,10 @@ public static class SpecialMoves
             if (attackerRank < 0 || attackerRank > 7) continue;
 
             int attackerSquare = attackerRank * 8 + attackerFile;
-            int piece = Board.Squares[attackerSquare];
+            int piece = Position.Squares[attackerSquare];
 
             if (!Piece.IsType(piece, Piece.Pawn)) continue;
-            if (!Piece.IsColor(piece, Board.colorToMove)) continue;
+            if (!Piece.IsColor(piece, Position.colorToMove)) continue;
 
             epMoves.Add(new Move(attackerSquare, enPassantSquare, enPassantMove: true));
         }
@@ -87,7 +87,7 @@ public static class SpecialMoves
     {
         List<Move> moves = new List<Move>();
 
-        bool isWhite    = Board.colorToMove == Piece.White;
+        bool isWhite    = Position.colorToMove == Piece.White;
         int colorIndex  = isWhite ? 1 : 0;
         int backRank    = isWhite ? 0 : 7;
         int kingSquare  = backRank * 8 + 4;
@@ -100,11 +100,11 @@ public static class SpecialMoves
             int g = backRank * 8 + 6;
             int rookSquare = backRank * 8 + 7;
 
-            bool pathClear      = Board.Squares[f] == Piece.None && Board.Squares[g] == Piece.None;
-            bool rookPresent    = Piece.IsType(Board.Squares[rookSquare], Piece.Rook);
-            bool notUnderAttack = !Board.IsSquareAttacked(kingSquare, attackColor)
-                            && !Board.IsSquareAttacked(f, attackColor)
-                            && !Board.IsSquareAttacked(g, attackColor);
+            bool pathClear      = Position.Squares[f] == Piece.None && Position.Squares[g] == Piece.None;
+            bool rookPresent    = Piece.IsType(Position.Squares[rookSquare], Piece.Rook);
+            bool notUnderAttack = !Position.IsSquareAttacked(kingSquare, attackColor)
+                            && !Position.IsSquareAttacked(f, attackColor)
+                            && !Position.IsSquareAttacked(g, attackColor);
 
             if (pathClear && rookPresent && notUnderAttack)
                 moves.Add(new Move(kingSquare, g, castlingMove: true));
@@ -118,11 +118,11 @@ public static class SpecialMoves
             int d = backRank * 8 + 3;
             int rookSquare = backRank * 8 + 0;
 
-            bool pathClear      = Board.Squares[b] == Piece.None && Board.Squares[c] == Piece.None && Board.Squares[d] == Piece.None;
-            bool rookPresent    = Piece.IsType(Board.Squares[rookSquare], Piece.Rook);
-            bool notUnderAttack = !Board.IsSquareAttacked(kingSquare, attackColor)
-                            && !Board.IsSquareAttacked(d, attackColor)
-                            && !Board.IsSquareAttacked(c, attackColor);
+            bool pathClear      = Position.Squares[b] == Piece.None && Position.Squares[c] == Piece.None && Position.Squares[d] == Piece.None;
+            bool rookPresent    = Piece.IsType(Position.Squares[rookSquare], Piece.Rook);
+            bool notUnderAttack = !Position.IsSquareAttacked(kingSquare, attackColor)
+                            && !Position.IsSquareAttacked(d, attackColor)
+                            && !Position.IsSquareAttacked(c, attackColor);
 
             if (pathClear && rookPresent && notUnderAttack)
                 moves.Add(new Move(kingSquare, c, castlingMove: true));
@@ -133,28 +133,28 @@ public static class SpecialMoves
 
     public static void ExecuteCastling(Move move)
     {
-        bool isWhite = Board.colorToMove == Piece.White;
+        bool isWhite = Position.colorToMove == Piece.White;
         int backRank = isWhite ? 0 : 7;
 
         int kingFrom = backRank * 8 + 4;
         int target   = move.TargetSquare;
 
-        Board.Squares[target]   = Board.Squares[kingFrom];
-        Board.Squares[kingFrom] = Piece.None;
+        Position.Squares[target]   = Position.Squares[kingFrom];
+        Position.Squares[kingFrom] = Piece.None;
 
         if (target % 8 == 6)
         {
             int rookFrom = backRank * 8 + 7;
             int rookTo   = backRank * 8 + 5;
-            Board.Squares[rookTo]   = Board.Squares[rookFrom];
-            Board.Squares[rookFrom] = Piece.None;
+            Position.Squares[rookTo]   = Position.Squares[rookFrom];
+            Position.Squares[rookFrom] = Piece.None;
         }
         else
         {
             int rookFrom = backRank * 8 + 0;
             int rookTo   = backRank * 8 + 3;
-            Board.Squares[rookTo]   = Board.Squares[rookFrom];
-            Board.Squares[rookFrom] = Piece.None;
+            Position.Squares[rookTo]   = Position.Squares[rookFrom];
+            Position.Squares[rookFrom] = Piece.None;
         }
     }
 }

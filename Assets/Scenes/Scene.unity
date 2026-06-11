@@ -628,7 +628,7 @@ GameObject:
   - component: {fileID: 1178806993}
   - component: {fileID: 1178806995}
   m_Layer: 0
-  m_Name: VisualBoard
+  m_Name: Board
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -660,8 +660,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2145758125}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1178806995
@@ -677,57 +676,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceDrawer
   pieceTextures: {fileID: 11400000, guid: 5061ba1aea175d44e937f1e3ebe039b8, type: 2}
-  parent: {fileID: 2145758125}
+  parent: {fileID: 0}
   size: 1
---- !u!1 &1353421864
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1353421866}
-  - component: {fileID: 1353421865}
-  m_Layer: 0
-  m_Name: PromotionHandler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1353421865
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1353421864}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2b7eb8a1e7c00248a8ea640af94d66b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PawnPromotion
-  promotionPanel: {fileID: 1497989552}
-  queenButton: {fileID: 862480285}
-  rookButton: {fileID: 121754950}
-  bishopButton: {fileID: 1440599172}
-  knightButton: {fileID: 695037883}
---- !u!4 &1353421866
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1353421864}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1440599170
 GameObject:
   m_ObjectHideFlags: 0
@@ -1117,9 +1067,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2121631734}
-  - component: {fileID: 2121631733}
   - component: {fileID: 2121631735}
+  - component: {fileID: 2121631733}
   - component: {fileID: 2121631736}
+  - component: {fileID: 2121631737}
   - component: {fileID: 2121631732}
   m_Layer: 0
   m_Name: GameHandler
@@ -1268,10 +1219,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameHandler
   fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
   pieceDrawer: {fileID: 1178806995}
-  promotionHandler: {fileID: 1353421865}
+  promotionHandler: {fileID: 2121631737}
   mode: 0
   depth: 2
-  botDepth: 4
+  botDepth: 3
   white: 0
   black: 1
 --- !u!114 &2121631736
@@ -1287,44 +1238,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BotManager
   gameHandler: {fileID: 2121631735}
---- !u!1 &2145758124
-GameObject:
+--- !u!114 &2121631737
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2145758125}
-  m_Layer: 0
-  m_Name: Pieces
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2145758125
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2145758124}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1178806994}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_GameObject: {fileID: 2121631731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2b7eb8a1e7c00248a8ea640af94d66b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PawnPromotion
+  promotionPanel: {fileID: 1497989552}
+  queenButton: {fileID: 862480285}
+  rookButton: {fileID: 121754950}
+  bishopButton: {fileID: 1440599172}
+  knightButton: {fileID: 695037883}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 780920966}
   - {fileID: 2121631734}
-  - {fileID: 1353421866}
   - {fileID: 1178806994}
   - {fileID: 1721978345}
   - {fileID: 1513168892}

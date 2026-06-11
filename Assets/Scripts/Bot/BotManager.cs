@@ -20,7 +20,7 @@ public class BotManager : MonoBehaviour
 
     bool IsCurrentPlayerBot()
     {
-        if (Board.colorToMove == Piece.White)
+        if (Position.colorToMove == Piece.White)
             return gameHandler.white == GameHandler.PlayerType.Bot;
         else
             return gameHandler.black == GameHandler.PlayerType.Bot;

@@ -20,7 +20,7 @@ public class GameHandler : MonoBehaviour
         string modelPath = Path.Combine(Application.streamingAssetsPath, "chess_model.onnx");
         ChessEvaluator.Initialize(modelPath);
 
-        Board.LoadPositionFromFen(fen);
+        Position.LoadPositionFromFen(fen);
 
         if (mode == Mode.PerftTestingInfo)
             Perft.PerftDivide(depth);
@@ -34,8 +34,8 @@ public class GameHandler : MonoBehaviour
     {
         if (PromotionHelper.IsPromotionMove(move))
         {
-            bool isBot = (Board.colorToMove == Piece.White && white == PlayerType.Bot) ||
-                        (Board.colorToMove == Piece.Black && black == PlayerType.Bot);
+            bool isBot = (Position.colorToMove == Piece.White && white == PlayerType.Bot) ||
+                        (Position.colorToMove == Piece.Black && black == PlayerType.Bot);
 
             if (isBot)
             {
@@ -47,21 +47,21 @@ public class GameHandler : MonoBehaviour
                     move.EnPassantMove,
                     promotionType: Piece.Queen
                 );
-                Board.MakeMove(queenPromotion);
+                MoveMaker.MakeMove(queenPromotion);
                 AfterMove();
             }
             else
             {
                 promotionHandler.Open(move, m =>
                 {
-                    Board.MakeMove(m);
+                    MoveMaker.MakeMove(m);
                     AfterMove();
                 });
             }
             return;
         }
 
-        Board.MakeMove(move);
+        MoveMaker.MakeMove(move);
         AfterMove();
     }
 

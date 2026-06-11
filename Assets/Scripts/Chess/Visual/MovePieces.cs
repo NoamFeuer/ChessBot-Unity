@@ -35,8 +35,8 @@ public class MovePieces : MonoBehaviour
         if (hit.collider == null) return;
         if (hit.collider.gameObject.name != "Piece") return;
 
-        int index = Board.PositionToIndex(hit.collider.gameObject.transform.position);
-        if (!Piece.IsColor(Board.Squares[index], Board.colorToMove)) return;
+        int index = Position.PositionToIndex(hit.collider.gameObject.transform.position);
+        if (!Piece.IsColor(Position.Squares[index], Position.colorToMove)) return;
 
         draggedPiece = hit.collider.gameObject;
         fromIndex = index;
@@ -57,7 +57,7 @@ public class MovePieces : MonoBehaviour
         if (draggedPiece == null) return;
 
         Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
-        int toIndex = Board.PositionToIndex(mousePos);
+        int toIndex = Position.PositionToIndex(mousePos);
         Move inputMove = new Move(fromIndex, toIndex);
 
         Move? matchedMove = FindLegalMove(inputMove);
@@ -66,13 +66,13 @@ public class MovePieces : MonoBehaviour
         {
             moveSound.Play();
 
-            draggedPiece.transform.position = (Vector3)Board.IndexToPosition(toIndex);
+            draggedPiece.transform.position = (Vector3)Position.IndexToPosition(toIndex);
 
-            // Route through GameHandler instead of Board.MakeMove directly
+            // Route through GameHandler instead of MoveMaker.MakeMove directly
             gameHandler.TryApplyMove(matchedMove.Value);
         }
         else
-            draggedPiece.transform.position = (Vector3)Board.IndexToPosition(fromIndex);
+            draggedPiece.transform.position = (Vector3)Position.IndexToPosition(fromIndex);
 
         draggedPiece = null;
         legalMoves = null;

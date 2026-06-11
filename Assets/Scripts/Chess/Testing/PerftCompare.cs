@@ -29,9 +29,9 @@ public static class PerftCompare
         {
             string name = MoveName(move);
 
-            Board.MakeMove(move);
+            MoveMaker.MakeMove(move);
             ulong nodes = Perft.PerftCheck(depth - 1);
-            Board.UndoMove(move);
+            MoveMaker.UndoMove(move);
 
             if (stockfishRoot.TryGetValue(name, out ulong expected) && nodes != expected)
             {
@@ -46,26 +46,24 @@ public static class PerftCompare
             return;
         }
 
-        // For each wrong move, load the resulting position as FEN and drill down one more level
         foreach (Move wrong in wrongMoves)
         {
             Debug.Log($"--- Drilling into {MoveName(wrong)} ---");
 
-            Board.MakeMove(wrong);
+            MoveMaker.MakeMove(wrong);
             string fen = BoardToFen();
             Debug.Log($"FEN after {MoveName(wrong)}: {fen}");
 
-            // Now compare at depth-1 within this position
             List<Move> subMoves = MoveGeneration.GenerateLegalMoves();
             foreach (Move sub in subMoves)
             {
-                Board.MakeMove(sub);
+                MoveMaker.MakeMove(sub);
                 ulong nodes = Perft.PerftCheck(depth - 2);
-                Board.UndoMove(sub);
+                MoveMaker.UndoMove(sub);
                 Debug.Log($"  {MoveName(wrong)} {MoveName(sub)}: {nodes}");
             }
 
-            Board.UndoMove(wrong);
+            MoveMaker.UndoMove(wrong);
         }
     }
 
@@ -77,7 +75,7 @@ public static class PerftCompare
             int empty = 0;
             for (int file = 0; file < 8; file++)
             {
-                int piece = Board.Squares[rank * 8 + file];
+                int piece = Position.Squares[rank * 8 + file];
                 if (piece == Piece.None)
                     empty++;
                 else
@@ -90,7 +88,7 @@ public static class PerftCompare
             if (rank > 0) fen += "/";
         }
 
-        fen += Board.colorToMove == Piece.White ? " w " : " b ";
+        fen += Position.colorToMove == Piece.White ? " w " : " b ";
 
         string castling = "";
         if (SpecialMoves.castlingRights[1][1]) castling += "K";

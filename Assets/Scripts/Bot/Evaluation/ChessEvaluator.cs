@@ -35,7 +35,7 @@ public static class ChessEvaluator
         // Planes 0-11: piece positions
         for (int sq = 0; sq < 64; sq++)
         {
-            int piece = Board.Squares[sq];
+            int piece = Position.Squares[sq];
             if (piece == Piece.None) continue;
 
             int plane = GetPlane(piece);
@@ -48,9 +48,9 @@ public static class ChessEvaluator
         // Plane 13: squares attacked by black
         for (int sq = 0; sq < 64; sq++)
         {
-            if (Board.IsSquareAttacked(sq, Piece.White))
+            if (Position.IsSquareAttacked(sq, Piece.White))
                 planes[12, sq / 8, sq % 8] = 1f;
-            if (Board.IsSquareAttacked(sq, Piece.Black))
+            if (Position.IsSquareAttacked(sq, Piece.Black))
                 planes[13, sq / 8, sq % 8] = 1f;
         }
 
@@ -97,7 +97,7 @@ public static class ChessEvaluator
 
         using var results = session.Run(inputs);
         float score = results.First().AsEnumerable<float>().First() * 1500f;
-        return Board.colorToMove == Piece.White ? score : -score;
+        return Position.colorToMove == Piece.White ? score : -score;
     }
 
     public static void Shutdown() => session?.Dispose();

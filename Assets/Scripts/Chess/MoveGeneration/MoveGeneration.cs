@@ -23,7 +23,7 @@ public static class MoveGeneration
 
     public static List<Move> GenerateLegalMovesForPiece(int startSquare)
     {
-        int piece = Board.Squares[startSquare];
+        int piece = Position.Squares[startSquare];
         List<Move> pseudoLegal = GenerateMovesForPiece(startSquare, piece);
         List<Move> legal = new List<Move>();
 
@@ -38,12 +38,12 @@ public static class MoveGeneration
 
     static bool DoesNotLeaveKingInCheck(Move move)
     {
-        int movingPiece   = Board.Squares[move.StartSquare];
-        int capturedPiece = Board.Squares[move.TargetSquare];
+        int movingPiece   = Position.Squares[move.StartSquare];
+        int capturedPiece = Position.Squares[move.TargetSquare];
         int savedEP       = SpecialMoves.enPassantSquare;
 
-        Board.Squares[move.TargetSquare] = movingPiece;
-        Board.Squares[move.StartSquare]  = Piece.None;
+        Position.Squares[move.TargetSquare] = movingPiece;
+        Position.Squares[move.StartSquare]  = Piece.None;
 
         int capturedPawnSquare = -1;
         if (move.EnPassantMove)
@@ -51,13 +51,13 @@ public static class MoveGeneration
             int movingColor = Piece.GetColor(movingPiece);
             int direction = (movingColor == Piece.White) ? 1 : -1;
             capturedPawnSquare = move.TargetSquare - 8 * direction;
-            Board.Squares[capturedPawnSquare] = Piece.None;
+            Position.Squares[capturedPawnSquare] = Piece.None;
         }
 
         int rookFrom = -1, rookTo = -1, rookPiece = Piece.None;
         if (move.CastlingMove)
         {
-            bool isWhite = Board.colorToMove == Piece.White;
+            bool isWhite = Position.colorToMove == Piece.White;
             int backRank = isWhite ? 0 : 7;
 
             if (move.TargetSquare == backRank * 8 + 6)
@@ -71,29 +71,29 @@ public static class MoveGeneration
                 rookTo   = backRank * 8 + 3;
             }
 
-            rookPiece               = Board.Squares[rookFrom];
-            Board.Squares[rookTo]   = rookPiece;
-            Board.Squares[rookFrom] = Piece.None;
+            rookPiece               = Position.Squares[rookFrom];
+            Position.Squares[rookTo]   = rookPiece;
+            Position.Squares[rookFrom] = Piece.None;
         }
 
-        int attackerColor = (Board.colorToMove == Piece.White) ? Piece.Black : Piece.White;
-        int kingSquare    = Board.FindKing(Board.colorToMove);
-        bool safe         = kingSquare != -1 && !Board.IsSquareAttacked(kingSquare, attackerColor);
+        int attackerColor = (Position.colorToMove == Piece.White) ? Piece.Black : Piece.White;
+        int kingSquare    = Position.FindKing(Position.colorToMove);
+        bool safe         = kingSquare != -1 && !Position.IsSquareAttacked(kingSquare, attackerColor);
 
-        Board.Squares[move.StartSquare]  = movingPiece;
-        Board.Squares[move.TargetSquare] = capturedPiece;
+        Position.Squares[move.StartSquare]  = movingPiece;
+        Position.Squares[move.TargetSquare] = capturedPiece;
 
         if (move.EnPassantMove && capturedPawnSquare != -1)
         {
-            int capturedPawn = (Board.colorToMove == Piece.White) ? (Piece.Black | Piece.Pawn)
+            int capturedPawn = (Position.colorToMove == Piece.White) ? (Piece.Black | Piece.Pawn)
                                                                 : (Piece.White | Piece.Pawn);
-            Board.Squares[capturedPawnSquare] = capturedPawn;
+            Position.Squares[capturedPawnSquare] = capturedPawn;
         }
 
         if (move.CastlingMove && rookFrom != -1)
         {
-            Board.Squares[rookFrom] = rookPiece;
-            Board.Squares[rookTo]   = Piece.None;
+            Position.Squares[rookFrom] = rookPiece;
+            Position.Squares[rookTo]   = Piece.None;
         }
 
         SpecialMoves.enPassantSquare = savedEP;
@@ -104,12 +104,12 @@ public static class MoveGeneration
     public static List<Move> GenerateMoves()
     {
         moves = new List<Move>();
-        friendlyColor = Board.colorToMove;
+        friendlyColor = Position.colorToMove;
         oppositeColor = (friendlyColor == Piece.White) ? Piece.Black : Piece.White;
 
         for (int startSquare = 0; startSquare < 64; startSquare++)
         {
-            int piece = Board.Squares[startSquare];
+            int piece = Position.Squares[startSquare];
             if (!Piece.IsColor(piece, friendlyColor)) continue;
 
             if (Piece.IsSlidingPiece(piece))
@@ -163,7 +163,7 @@ public static class MoveGeneration
             for (int n = 0; n < PMD.NumSquaresToEdge[startSquare][directionIndex]; n++)
             {
                 int targetSquare = startSquare + PMD.DirectionOffsets[directionIndex] * (n + 1);
-                int pieceOnTargetSquare = Board.Squares[targetSquare];
+                int pieceOnTargetSquare = Position.Squares[targetSquare];
 
                 if (Piece.IsColor(pieceOnTargetSquare, friendlyColor))
                     break;
@@ -194,7 +194,7 @@ public static class MoveGeneration
             bool validJump = (fileDiff == 2 && rankDiff == 1) || (fileDiff == 1 && rankDiff == 2);
             if (!validJump) continue;
 
-            int pieceOnTarget = Board.Squares[targetSquare];
+            int pieceOnTarget = Position.Squares[targetSquare];
             if (Piece.IsColor(pieceOnTarget, friendlyColor)) continue;
 
             moves.Add(new Move(startSquare, targetSquare));
@@ -208,7 +208,7 @@ public static class MoveGeneration
             if (PMD.NumSquaresToEdge[startSquare][directionIndex] == 0) continue;
 
             int targetSquare  = startSquare + PMD.DirectionOffsets[directionIndex];
-            int pieceOnTarget = Board.Squares[targetSquare];
+            int pieceOnTarget = Position.Squares[targetSquare];
 
             if (Piece.IsColor(pieceOnTarget, friendlyColor)) continue;
 
@@ -233,7 +233,7 @@ public static class MoveGeneration
 
         // One square forward
         int oneForward = startSquare + 8 * direction;
-        if (oneForward >= 0 && oneForward < 64 && Board.Squares[oneForward] == Piece.None)
+        if (oneForward >= 0 && oneForward < 64 && Position.Squares[oneForward] == Piece.None)
         {
             if (rank + direction == promotionRank)
                 AddPromotionMoves(startSquare, oneForward);
@@ -243,7 +243,7 @@ public static class MoveGeneration
 
                 // Two squares forward from starting rank
                 int twoForward = startSquare + 16 * direction;
-                if (rank == startRank && Board.Squares[twoForward] == Piece.None)
+                if (rank == startRank && Position.Squares[twoForward] == Piece.None)
                     moves.Add(new Move(startSquare, twoForward));
             }
         }
@@ -259,7 +259,7 @@ public static class MoveGeneration
             if (targetRank < 0 || targetRank > 7) continue;
 
             int targetSquare = targetRank * 8 + targetFile;
-            if (!Piece.IsColor(Board.Squares[targetSquare], oppositeColor)) continue;
+            if (!Piece.IsColor(Position.Squares[targetSquare], oppositeColor)) continue;
 
             if (targetRank == promotionRank)
                 AddPromotionMoves(startSquare, targetSquare);
