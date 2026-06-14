@@ -39,7 +39,6 @@ public class GameHandler : MonoBehaviour
 
             if (isBot)
             {
-                // Bot always promotes to queen
                 Move queenPromotion = new Move(
                     move.StartSquare,
                     move.TargetSquare,

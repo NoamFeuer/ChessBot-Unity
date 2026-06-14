@@ -28,39 +28,97 @@ public static class Position
         if (kingSquare == -1) return false;
 
         int attackerColor = (color == Piece.White) ? Piece.Black : Piece.White;
-        return IsSquareAttacked(kingSquare, attackerColor);
+        return IsAttacked(kingSquare, attackerColor);
     }
 
-    public static bool IsSquareAttacked(int squareIndex, int attackerColor)
+    public static bool IsAttacked(int sq, int attackerColor)
     {
-        int originalColor = colorToMove;
-        int savedEP = SpecialMoves.enPassantSquare;
-        colorToMove = attackerColor;
-        SpecialMoves.enPassantSquare = -1;
+        int file = sq % 8;
+        int rank = sq / 8;
 
-        bool attacked = false;
-
-        for (int startSquare = 0; startSquare < 64; startSquare++)
+        int[] knightOffsets = { 17, 15, 10, 6, -6, -10, -15, -17 };
+        foreach (int offset in knightOffsets)
         {
-            int piece = Squares[startSquare];
-            if (!Piece.IsColor(piece, attackerColor)) continue;
-
-            List<Move> attacks = MoveGeneration.GenerateMovesForPiece(startSquare, piece, attacksOnly: true);
-
-            foreach (Move attack in attacks)
+            int target = sq + offset;
+            if (target < 0 || target >= 64) continue;
+            int tf = target % 8, tr = target / 8;
+            int fd = System.Math.Abs(tf - file), rd = System.Math.Abs(tr - rank);
+            if ((fd == 2 && rd == 1) || (fd == 1 && rd == 2))
             {
-                if (attack.TargetSquare == squareIndex)
-                {
-                    attacked = true;
-                    break;
-                }
+                int piece = Squares[target];
+                if (Piece.IsColor(piece, attackerColor) && Piece.IsType(piece, Piece.Knight))
+                    return true;
             }
-            if (attacked) break;
         }
 
-        colorToMove = originalColor;
-        SpecialMoves.enPassantSquare = savedEP;
-        return attacked;
+        int pawnDir = attackerColor == Piece.White ? -1 : 1;
+        int[] pawnFiles = { -1, 1 };
+        foreach (int fd in pawnFiles)
+        {
+            int tf = file + fd, tr = rank + pawnDir;
+            if (tf < 0 || tf > 7 || tr < 0 || tr > 7) continue;
+            int piece = Squares[tr * 8 + tf];
+            if (Piece.IsColor(piece, attackerColor) && Piece.IsType(piece, Piece.Pawn))
+                return true;
+        }
+
+        int[] kingOffsets = { 1, -1, 8, -8, 9, -9, 7, -7 };
+        foreach (int offset in kingOffsets)
+        {
+            int target = sq + offset;
+            if (target < 0 || target >= 64) continue;
+            int tf = target % 8, tr = target / 8;
+            if (System.Math.Abs(tf - file) > 1 || System.Math.Abs(tr - rank) > 1) continue;
+            int piece = Squares[target];
+            if (Piece.IsColor(piece, attackerColor) && Piece.IsType(piece, Piece.King))
+                return true;
+        }
+
+        int[] straightFiles = { 1, -1, 0, 0 };
+        int[] straightRanks = { 0, 0, 1, -1 };
+
+        for (int d = 0; d < 4; d++)
+        {
+            int tf = file + straightFiles[d];
+            int tr = rank + straightRanks[d];
+            while (tf >= 0 && tf < 8 && tr >= 0 && tr < 8)
+            {
+                int piece = Squares[tr * 8 + tf];
+                if (piece != Piece.None)
+                {
+                    if (Piece.IsColor(piece, attackerColor) &&
+                        (Piece.IsType(piece, Piece.Rook) || Piece.IsType(piece, Piece.Queen)))
+                        return true;
+                    break;
+                }
+                tf += straightFiles[d];
+                tr += straightRanks[d];
+            }
+        }
+
+        int[] diagFiles = { 1, -1, 1, -1 };
+        int[] diagRanks = { 1, 1, -1, -1 };
+
+        for (int d = 0; d < 4; d++)
+        {
+            int tf = file + diagFiles[d];
+            int tr = rank + diagRanks[d];
+            while (tf >= 0 && tf < 8 && tr >= 0 && tr < 8)
+            {
+                int piece = Squares[tr * 8 + tf];
+                if (piece != Piece.None)
+                {
+                    if (Piece.IsColor(piece, attackerColor) &&
+                        (Piece.IsType(piece, Piece.Bishop) || Piece.IsType(piece, Piece.Queen)))
+                        return true;
+                    break;
+                }
+                tf += diagFiles[d];
+                tr += diagRanks[d];
+            }
+        }
+
+        return false;
     }
 
     public static Vector2 IndexToPosition(int i)

@@ -11,7 +11,7 @@ public static class Perft
         List<Move> moves = MoveGeneration.GenerateLegalMoves();
 
         if (moves.Count == 0)
-            return 0UL;  // add this — stalemate/checkmate = 0 nodes
+            return 0UL;
 
         ulong nodes = 0;
         foreach (Move move in moves)
@@ -32,7 +32,7 @@ public static class Perft
         foreach (Move move in moveList)
         {
             string from = SquareName(move.StartSquare);
-            string to   = SquareName(move.TargetSquare);
+            string to = SquareName(move.TargetSquare);
             string name = $"{from}{to}";
 
             if (filterMove != "" && name != filterMove) continue;

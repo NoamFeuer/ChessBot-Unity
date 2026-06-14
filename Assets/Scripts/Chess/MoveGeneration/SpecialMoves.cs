@@ -102,9 +102,9 @@ public static class SpecialMoves
 
             bool pathClear      = Position.Squares[f] == Piece.None && Position.Squares[g] == Piece.None;
             bool rookPresent    = Piece.IsType(Position.Squares[rookSquare], Piece.Rook);
-            bool notUnderAttack = !Position.IsSquareAttacked(kingSquare, attackColor)
-                            && !Position.IsSquareAttacked(f, attackColor)
-                            && !Position.IsSquareAttacked(g, attackColor);
+            bool notUnderAttack = !Position.IsAttacked(kingSquare, attackColor)
+                            && !Position.IsAttacked(f, attackColor)
+                            && !Position.IsAttacked(g, attackColor);
 
             if (pathClear && rookPresent && notUnderAttack)
                 moves.Add(new Move(kingSquare, g, castlingMove: true));
@@ -120,9 +120,9 @@ public static class SpecialMoves
 
             bool pathClear      = Position.Squares[b] == Piece.None && Position.Squares[c] == Piece.None && Position.Squares[d] == Piece.None;
             bool rookPresent    = Piece.IsType(Position.Squares[rookSquare], Piece.Rook);
-            bool notUnderAttack = !Position.IsSquareAttacked(kingSquare, attackColor)
-                            && !Position.IsSquareAttacked(d, attackColor)
-                            && !Position.IsSquareAttacked(c, attackColor);
+            bool notUnderAttack = !Position.IsAttacked(kingSquare, attackColor)
+                            && !Position.IsAttacked(d, attackColor)
+                            && !Position.IsAttacked(c, attackColor);
 
             if (pathClear && rookPresent && notUnderAttack)
                 moves.Add(new Move(kingSquare, c, castlingMove: true));

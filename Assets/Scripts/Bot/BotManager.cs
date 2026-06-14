@@ -31,7 +31,7 @@ public class BotManager : MonoBehaviour
         isBotThinking = true;
         yield return null;
 
-        Move best = NegaMax.GetBestMove(gameHandler.botDepth);
+        Move best = MiniMax.GetBestMove(gameHandler.botDepth);
 
         if (best.StartSquare != best.TargetSquare)
             gameHandler.TryApplyMove(best);
