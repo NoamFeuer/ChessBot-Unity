@@ -6,12 +6,11 @@ public static class MoveMaker
     {
         int movingPiece   = Position.Squares[move.StartSquare];
         int capturedPiece = Position.Squares[move.TargetSquare];
-
         int capturedPawnSquare = -1;
 
         if (move.EnPassantMove)
         {
-            int direction = (Position.colorToMove == Piece.White) ? 1 : -1;
+            int direction      = Position.colorToMove == Piece.White ? 1 : -1;
             capturedPawnSquare = move.TargetSquare - 8 * direction;
         }
 
@@ -20,7 +19,9 @@ public static class MoveMaker
             capturedPiece,
             capturedPawnSquare,
             SpecialMoves.enPassantSquare,
-            SpecialMoves.castlingRights
+            SpecialMoves.castlingRights,
+            Position.halfMoveClock,
+            Position.fullMoveNumber
         ));
 
         Position.Squares[move.TargetSquare] = movingPiece;
@@ -34,7 +35,7 @@ public static class MoveMaker
 
         if (move.CastlingMove)
         {
-            int backRank   = (Position.colorToMove == Piece.White) ? 0 : 7;
+            int backRank   = Position.colorToMove == Piece.White ? 0 : 7;
             int kingSquare = backRank * 8 + 4;
 
             if (move.TargetSquare == kingSquare + 2)
@@ -49,10 +50,20 @@ public static class MoveMaker
             }
         }
 
+        // Update halfmove clock
+        if (move.CaptureMove || Piece.IsType(movingPiece, Piece.Pawn))
+            Position.halfMoveClock = 0;
+        else
+            Position.halfMoveClock++;
+
+        // Update fullmove number
+        if (Position.colorToMove == Piece.Black)
+            Position.fullMoveNumber++;
+
         SpecialMoves.UpdateEnPassant(move);
         SpecialMoves.UpdateCastling(move, capturedPiece);
 
-        Position.colorToMove = (Position.colorToMove == Piece.White) ? Piece.Black : Piece.White;
+        Position.colorToMove = Position.colorToMove == Piece.White ? Piece.Black : Piece.White;
 
         return true;
     }
@@ -63,21 +74,24 @@ public static class MoveMaker
 
         GameHistory state = Position.history.Pop();
 
-        Position.colorToMove = Position.colorToMove == Piece.White ? Piece.Black : Piece.White;
- 
+        Position.colorToMove      = Position.colorToMove == Piece.White ? Piece.Black : Piece.White;
+        Position.halfMoveClock    = state.halfMoveClock;
+        Position.fullMoveNumber   = state.fullMoveNumber;
+
         Position.Squares[move.StartSquare]  = state.movingPiece;
         Position.Squares[move.TargetSquare] = state.capturedPiece;
 
         if (move.EnPassantMove && state.capturedPawnSquare != -1)
         {
-            int capturedPawn = (Position.colorToMove == Piece.White) ? (Piece.Black | Piece.Pawn)
-                                                            : (Piece.White | Piece.Pawn);
+            int capturedPawn = Position.colorToMove == Piece.White
+                ? Piece.Black | Piece.Pawn
+                : Piece.White | Piece.Pawn;
             Position.Squares[state.capturedPawnSquare] = capturedPawn;
         }
 
         if (move.CastlingMove)
         {
-            int backRank   = (Position.colorToMove == Piece.White) ? 0 : 7;
+            int backRank   = Position.colorToMove == Piece.White ? 0 : 7;
             int kingSquare = backRank * 8 + 4;
 
             if (move.TargetSquare == kingSquare + 2)

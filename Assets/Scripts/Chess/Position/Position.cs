@@ -5,7 +5,9 @@ public static class Position
 {
     public static Stack<GameHistory> history = new Stack<GameHistory>();
     public static int[] Squares;
-    public static int colorToMove = Piece.White;
+    public static int colorToMove   = Piece.White;
+    public static int halfMoveClock  = 0;
+    public static int fullMoveNumber = 1;
 
     static Position()
     {
@@ -15,10 +17,8 @@ public static class Position
     public static int FindKing(int color)
     {
         for (int i = 0; i < 64; i++)
-        {
             if (Squares[i] == (color | Piece.King))
                 return i;
-        }
         return -1;
     }
 
@@ -26,8 +26,7 @@ public static class Position
     {
         int kingSquare = FindKing(color);
         if (kingSquare == -1) return false;
-
-        int attackerColor = (color == Piece.White) ? Piece.Black : Piece.White;
+        int attackerColor = color == Piece.White ? Piece.Black : Piece.White;
         return IsAttacked(kingSquare, attackerColor);
     }
 
@@ -76,7 +75,6 @@ public static class Position
 
         int[] straightFiles = { 1, -1, 0, 0 };
         int[] straightRanks = { 0, 0, 1, -1 };
-
         for (int d = 0; d < 4; d++)
         {
             int tf = file + straightFiles[d];
@@ -98,7 +96,6 @@ public static class Position
 
         int[] diagFiles = { 1, -1, 1, -1 };
         int[] diagRanks = { 1, 1, -1, -1 };
-
         for (int d = 0; d < 4; d++)
         {
             int tf = file + diagFiles[d];
@@ -125,14 +122,15 @@ public static class Position
     {
         int file = i % 8;
         int rank = i / 8;
-
         return new Vector2(-3.5f + file, -3.5f + rank) * BoardDrawer.squareSize;
     }
 
     public static void LoadPositionFromFen(string fen)
     {
-        Squares = new int[64];
-        colorToMove = Piece.White;
+        Squares          = new int[64];
+        colorToMove      = Piece.White;
+        halfMoveClock    = 0;
+        fullMoveNumber   = 1;
         SpecialMoves.enPassantSquare = -1;
         history.Clear();
         SpecialMoves.castlingRights = new bool[2][]
@@ -157,7 +155,7 @@ public static class Position
             else
             {
                 int color = char.IsUpper(c) ? Piece.White : Piece.Black;
-                int type = char.ToLower(c) switch
+                int type  = char.ToLower(c) switch
                 {
                     'k' => Piece.King,
                     'q' => Piece.Queen,
@@ -181,10 +179,10 @@ public static class Position
             {
                 switch (c)
                 {
-                    case 'K': SpecialMoves.castlingRights[1][1] = true; break; // white kingside
-                    case 'Q': SpecialMoves.castlingRights[1][0] = true; break; // white queenside
-                    case 'k': SpecialMoves.castlingRights[0][1] = true; break; // black kingside
-                    case 'q': SpecialMoves.castlingRights[0][0] = true; break; // black queenside
+                    case 'K': SpecialMoves.castlingRights[1][1] = true; break;
+                    case 'Q': SpecialMoves.castlingRights[1][0] = true; break;
+                    case 'k': SpecialMoves.castlingRights[0][1] = true; break;
+                    case 'q': SpecialMoves.castlingRights[0][0] = true; break;
                 }
             }
         }
@@ -195,16 +193,70 @@ public static class Position
             int epRank = sections[3][1] - '1';
             SpecialMoves.enPassantSquare = epRank * 8 + epFile;
         }
+
+        if (sections.Length > 4) int.TryParse(sections[4], out halfMoveClock);
+        if (sections.Length > 5) int.TryParse(sections[5], out fullMoveNumber);
+    }
+
+    public static string GetFen()
+    {
+        string[] pieceChars = { "", "k", "p", "n", "b", "r", "q" };
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+        for (int rank = 7; rank >= 0; rank--)
+        {
+            int empty = 0;
+            for (int file = 0; file < 8; file++)
+            {
+                int sq    = rank * 8 + file;
+                int piece = Squares[sq];
+
+                if (piece == Piece.None)
+                {
+                    empty++;
+                }
+                else
+                {
+                    if (empty > 0) { sb.Append(empty); empty = 0; }
+                    int type  = Piece.GetType(piece);
+                    int color = Piece.GetColor(piece);
+                    string ch = pieceChars[type];
+                    sb.Append(color == Piece.White ? ch.ToUpper() : ch);
+                }
+            }
+            if (empty > 0) sb.Append(empty);
+            if (rank > 0) sb.Append('/');
+        }
+
+        sb.Append(colorToMove == Piece.White ? " w " : " b ");
+
+        string castling = "";
+        if (SpecialMoves.castlingRights[1][1]) castling += "K";
+        if (SpecialMoves.castlingRights[1][0]) castling += "Q";
+        if (SpecialMoves.castlingRights[0][1]) castling += "k";
+        if (SpecialMoves.castlingRights[0][0]) castling += "q";
+        sb.Append(castling.Length > 0 ? castling : "-");
+
+        if (SpecialMoves.enPassantSquare != -1)
+        {
+            int ep  = SpecialMoves.enPassantSquare;
+            char f  = (char)('a' + ep % 8);
+            char r  = (char)('1' + ep / 8);
+            sb.Append($" {f}{r}");
+        }
+        else
+            sb.Append(" -");
+
+        sb.Append($" {halfMoveClock} {fullMoveNumber}");
+
+        return sb.ToString();
     }
 
     public static int PositionToIndex(Vector2 worldPos)
     {
         int file = Mathf.RoundToInt(worldPos.x / BoardDrawer.squareSize + 3.5f);
         int rank = Mathf.RoundToInt(worldPos.y / BoardDrawer.squareSize + 3.5f);
-
         if (file < 0 || file > 7 || rank < 0 || rank > 7) return -1;
-
         return rank * 8 + file;
     }
 }
- 

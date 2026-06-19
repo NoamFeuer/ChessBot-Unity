@@ -1,22 +1,22 @@
 public struct GameHistory
 {
-    public int movingPiece;
-    public int capturedPiece;
-    public int capturedPawnSquare;
-    public int enPassantSquare;
+    public int     movingPiece;
+    public int     capturedPiece;
+    public int     capturedPawnSquare;
+    public int     enPassantSquare;
     public bool[][] castlingRights;
+    public int     halfMoveClock;
+    public int     fullMoveNumber;
 
-    public GameHistory(int moving, int captured, int capturedPawnSq, int epSquare, bool[][] rights)
+    public GameHistory(int movingPiece, int capturedPiece, int capturedPawnSquare,
+        int enPassantSquare, bool[][] castlingRights, int halfMoveClock, int fullMoveNumber)
     {
-        movingPiece        = moving;
-        capturedPiece      = captured;
-        capturedPawnSquare = capturedPawnSq;
-        enPassantSquare    = epSquare;
-
-        castlingRights = new bool[2][]
-        {
-            new bool[] { rights[0][0], rights[0][1] },
-            new bool[] { rights[1][0], rights[1][1] }
-        };
+        this.movingPiece        = movingPiece;
+        this.capturedPiece      = capturedPiece;
+        this.capturedPawnSquare = capturedPawnSquare;
+        this.enPassantSquare    = enPassantSquare;
+        this.castlingRights     = castlingRights;
+        this.halfMoveClock      = halfMoveClock;
+        this.fullMoveNumber     = fullMoveNumber;
     }
 }
