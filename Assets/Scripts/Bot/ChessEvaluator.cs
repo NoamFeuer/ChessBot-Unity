@@ -107,14 +107,14 @@ public static class ChessEvaluator
 
     static (float value, float[] policy) RunModel(float[,,] planes)
     {
-        var tensor = new DenseTensor<float>(new[] { 1, 19, 8, 8 });
+        DenseTensor<float> tensor = new DenseTensor<float>(new[] { 1, 19, 8, 8 });
 
         for (int p = 0; p < 19; p++)
             for (int r = 0; r < 8; r++)
                 for (int f = 0; f < 8; f++)
                     tensor[0, p, r, f] = planes[p, r, f];
 
-        var inputs = new List<NamedOnnxValue> {
+        List<NamedOnnxValue> inputs = new List<NamedOnnxValue> {
             NamedOnnxValue.CreateFromTensor("board", tensor)
         };
 

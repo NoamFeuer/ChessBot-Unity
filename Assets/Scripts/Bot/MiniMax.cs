@@ -28,7 +28,7 @@ public static class MiniMax
 
     static MiniMax()
     {
-        var rng = new System.Random(12345);
+        System.Random rng = new System.Random(12345);
         ZobristTable = new ulong[64, 7, 2];
 
         for (int sq = 0; sq < 64; sq++)
@@ -125,7 +125,7 @@ public static class MiniMax
 
         ulong key   = ComputeZobrist();
         int ttIndex = (int)(key % TT_SIZE);
-        var ttEntry = tt[ttIndex];
+        TTEntry ttEntry = tt[ttIndex];
         Move ttMove = default;
 
         if (ttEntry.Key == key)
@@ -232,7 +232,7 @@ public static class MiniMax
 
         ulong key   = ComputeZobrist();
         int ttIndex = (int)(key % TT_SIZE);
-        var ttEntry = tt[ttIndex];
+        TTEntry ttEntry = tt[ttIndex];
         Move ttMove = ttEntry.Key == key ? ttEntry.BestMove : default;
 
         List<Move> moves = MoveGeneration.GenerateLegalMoves();

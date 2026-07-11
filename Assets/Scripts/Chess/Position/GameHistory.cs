@@ -15,8 +15,13 @@ public struct GameHistory
         this.capturedPiece      = capturedPiece;
         this.capturedPawnSquare = capturedPawnSquare;
         this.enPassantSquare    = enPassantSquare;
-        this.castlingRights     = castlingRights;
         this.halfMoveClock      = halfMoveClock;
         this.fullMoveNumber     = fullMoveNumber;
+
+        this.castlingRights = new bool[2][]
+        {
+            new bool[] { castlingRights[0][0], castlingRights[0][1] },
+            new bool[] { castlingRights[1][0], castlingRights[1][1] }
+        };
     }
 }

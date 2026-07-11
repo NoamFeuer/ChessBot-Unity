@@ -78,17 +78,19 @@ public class MovePieces : MonoBehaviour
         legalMoves = null;
     }
 
-    static Move? FindLegalMove(Move input)
+   static Move? FindLegalMove(Move input)
+{
+    if (legalMoves == null) return null;
+
+    foreach (Move legal in legalMoves)
     {
-        if (legalMoves == null) return null;
-
-        foreach (Move legal in legalMoves)
-        {
-            if (legal.StartSquare == input.StartSquare &&
-                legal.TargetSquare == input.TargetSquare)
-                return legal;
-        }
-
-        return null;
+        UnityEngine.Debug.Log($"Legal: {legal.StartSquare}->{legal.TargetSquare} castling:{legal.CastlingMove}");
+        if (legal.StartSquare == input.StartSquare &&
+            legal.TargetSquare == input.TargetSquare)
+            return legal;
     }
+
+    UnityEngine.Debug.Log($"No match for {input.StartSquare}->{input.TargetSquare}");
+    return null;
+}
 }

@@ -2,8 +2,7 @@ using System.Collections.Generic;
 
 public static class MoveGeneration
 {
-    static Move[] moveBuffer = new Move[256];
-    static int moveCount = 0;
+    static List<Move> moves = new List<Move>(256);
     static int friendlyColor;
     static int oppositeColor;
 
@@ -88,7 +87,7 @@ public static class MoveGeneration
 
     public static List<Move> GenerateMoves()
     {
-        moveCount     = 0;
+        moves = new List<Move>(64);
         friendlyColor = Position.colorToMove;
         oppositeColor = friendlyColor == Piece.White ? Piece.Black : Piece.White;
 
@@ -97,40 +96,38 @@ public static class MoveGeneration
             int piece = Position.Squares[startSquare];
             if (!Piece.IsColor(piece, friendlyColor)) continue;
 
-            if (Piece.IsSlidingPiece(piece))       GenerateSlidingMoves(startSquare, piece);
+            if      (Piece.IsSlidingPiece(piece))       GenerateSlidingMoves(startSquare, piece);
             else if (Piece.IsType(piece, Piece.Knight)) GenerateKnightMoves(startSquare);
             else if (Piece.IsType(piece, Piece.King))   GenerateKingMoves(startSquare);
             else if (Piece.IsType(piece, Piece.Pawn))   GeneratePawnMoves(startSquare);
         }
 
-        var result = new List<Move>(moveCount);
-        for (int i = 0; i < moveCount; i++)
-            result.Add(moveBuffer[i]);
-        return result;
+        return moves;
     }
 
     public static List<Move> GenerateMovesForPiece(int startSquare, int piece, bool attacksOnly = false)
     {
-        int savedCount    = moveCount;
-        int savedFriendly = friendlyColor;
-        int savedOpposite = oppositeColor;
+        List<Move> savedMoves = moves;
+        int savedFriendly     = friendlyColor;
+        int savedOpposite     = oppositeColor;
 
-        moveCount     = 0;
+        moves         = new List<Move>(32);
         friendlyColor = Piece.GetColor(piece);
         oppositeColor = friendlyColor == Piece.White ? Piece.Black : Piece.White;
 
-        if      (Piece.IsType(piece, Piece.Pawn))                                                   GeneratePawnMoves(startSquare);
-        else if (Piece.IsType(piece, Piece.Knight))                                                  GenerateKnightMoves(startSquare);
-        else if (Piece.IsType(piece, Piece.Bishop) || Piece.IsType(piece, Piece.Queen) || Piece.IsType(piece, Piece.Rook)) GenerateSlidingMoves(startSquare, piece);
-        else if (Piece.IsType(piece, Piece.King))                                                    GenerateKingMoves(startSquare, attacksOnly);
+        if      (Piece.IsType(piece, Piece.Pawn))    GeneratePawnMoves(startSquare);
+        else if (Piece.IsType(piece, Piece.Knight))  GenerateKnightMoves(startSquare);
+        else if (Piece.IsType(piece, Piece.Bishop) ||
+                 Piece.IsType(piece, Piece.Queen)  ||
+                 Piece.IsType(piece, Piece.Rook))    GenerateSlidingMoves(startSquare, piece);
+        else if (Piece.IsType(piece, Piece.King))    GenerateKingMoves(startSquare, attacksOnly);
 
-        var result = new List<Move>(moveCount);
-        for (int i = 0; i < moveCount; i++)
-            result.Add(moveBuffer[i]);
+        List<Move> result = moves;
 
-        moveCount     = savedCount;
+        moves         = savedMoves;
         friendlyColor = savedFriendly;
         oppositeColor = savedOpposite;
+
         return result;
     }
 
@@ -148,7 +145,7 @@ public static class MoveGeneration
 
                 if (Piece.IsColor(pieceOnTargetSquare, friendlyColor)) break;
 
-                moveBuffer[moveCount++] = new Move(startSquare, targetSquare);
+                moves.Add(new Move(startSquare, targetSquare));
 
                 if (Piece.IsColor(pieceOnTargetSquare, oppositeColor)) break;
             }
@@ -175,7 +172,7 @@ public static class MoveGeneration
             int pieceOnTarget = Position.Squares[targetSquare];
             if (Piece.IsColor(pieceOnTarget, friendlyColor)) continue;
 
-            moveBuffer[moveCount++] = new Move(startSquare, targetSquare);
+            moves.Add(new Move(startSquare, targetSquare));
         }
     }
 
@@ -190,12 +187,12 @@ public static class MoveGeneration
 
             if (Piece.IsColor(pieceOnTarget, friendlyColor)) continue;
 
-            moveBuffer[moveCount++] = new Move(startSquare, targetSquare);
+            moves.Add(new Move(startSquare, targetSquare));
         }
 
         if (!attacksOnly)
             foreach (Move move in SpecialMoves.GetCastlingMoves())
-                moveBuffer[moveCount++] = move;
+                moves.Add(move);
     }
 
     static void GeneratePawnMoves(int startSquare)
@@ -213,10 +210,10 @@ public static class MoveGeneration
                 AddPromotionMoves(startSquare, oneForward);
             else
             {
-                moveBuffer[moveCount++] = new Move(startSquare, oneForward);
+                moves.Add(new Move(startSquare, oneForward));
                 int twoForward = startSquare + 16 * direction;
                 if (rank == startRank && Position.Squares[twoForward] == Piece.None)
-                    moveBuffer[moveCount++] = new Move(startSquare, twoForward);
+                    moves.Add(new Move(startSquare, twoForward));
             }
         }
 
@@ -235,19 +232,19 @@ public static class MoveGeneration
             if (targetRank == promotionRank)
                 AddPromotionMoves(startSquare, targetSquare);
             else
-                moveBuffer[moveCount++] = new Move(startSquare, targetSquare);
+                moves.Add(new Move(startSquare, targetSquare));
         }
 
         foreach (Move epMove in SpecialMoves.GetEPMoves())
             if (epMove.StartSquare == startSquare)
-                moveBuffer[moveCount++] = epMove;
+                moves.Add(epMove);
     }
 
     static void AddPromotionMoves(int startSquare, int targetSquare)
     {
-        moveBuffer[moveCount++] = new Move(startSquare, targetSquare, promotionType: Piece.Queen);
-        moveBuffer[moveCount++] = new Move(startSquare, targetSquare, promotionType: Piece.Rook);
-        moveBuffer[moveCount++] = new Move(startSquare, targetSquare, promotionType: Piece.Bishop);
-        moveBuffer[moveCount++] = new Move(startSquare, targetSquare, promotionType: Piece.Knight);
+        moves.Add(new Move(startSquare, targetSquare, promotionType: Piece.Queen));
+        moves.Add(new Move(startSquare, targetSquare, promotionType: Piece.Rook));
+        moves.Add(new Move(startSquare, targetSquare, promotionType: Piece.Bishop));
+        moves.Add(new Move(startSquare, targetSquare, promotionType: Piece.Knight));
     }
 }
