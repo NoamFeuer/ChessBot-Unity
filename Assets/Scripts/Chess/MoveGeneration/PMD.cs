@@ -7,8 +7,8 @@ public class PMD
     public static readonly int[] knightJumps = { 15, 17, -15, -17, 6, 10, -6, -10 };
     public static readonly int[][] NumSquaresToEdge;
 
-    public static readonly int[] blackRookIndexes =  {0, 7};
-    public static readonly int[] whiteRookIndexes = {56, 63};
+    public static readonly int[] blackRookIndexes =  { 0, 7 };
+    public static readonly int[] whiteRookIndexes = { 56, 63 };
 
     public static int whiteKingIndex = 60;
     public static int blackKingIndex = 4;
@@ -23,8 +23,8 @@ public class PMD
             {
                 int numNorth = 7 - rank;
                 int numSouth = rank;
-                int numWest  = file;
-                int numEast  = 7 - file;
+                int numWest = file;
+                int numEast = 7 - file;
 
                 int squareIndex = rank * 8 + file;
 
