@@ -1222,7 +1222,7 @@ MonoBehaviour:
   promotionHandler: {fileID: 2121631737}
   mode: 0
   depth: 2
-  botDepth: 4
+  botDepth: 3
   white: 0
   black: 1
 --- !u!114 &2121631736

@@ -7,7 +7,6 @@ using UnityEngine;
 public static class ChessEvaluator
 {
     static InferenceSession session;
-    const int NUM_MOVES = 64 * 64 * 5;
 
     static int GetPlane(int piece)
     {
@@ -16,13 +15,13 @@ public static class ChessEvaluator
 
         int typeIndex = type switch
         {
-            Piece.Pawn   => 0,
+            Piece.Pawn => 0,
             Piece.Knight => 1,
             Piece.Bishop => 2,
-            Piece.Rook   => 3,
-            Piece.Queen  => 4,
-            Piece.King   => 5,
-            _            => -1
+            Piece.Rook => 3,
+            Piece.Queen => 4,
+            Piece.King => 5,
+            _ => -1
         };
 
         if (typeIndex == -1) return -1;

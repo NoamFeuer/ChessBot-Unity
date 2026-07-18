@@ -7,24 +7,24 @@ public static class MiniMax
     struct TTEntry
     {
         public ulong Key;
-        public int   Depth;
-        public int   Score;
-        public byte  Flag;
-        public Move  BestMove;
+        public int Depth;
+        public int Score;
+        public byte Flag;
+        public Move BestMove;
     }
 
-    static TTEntry[] tt          = new TTEntry[TT_SIZE];
-    static Move[,]   killers     = new Move[64, 2];
-    static int[,]    history     = new int[64, 64];
+    static TTEntry[] tt = new TTEntry[TT_SIZE];
+    static Move[,] killers = new Move[64, 2];
+    static int[,] history = new int[64, 64];
 
-    const byte EXACT      = 0;
+    const byte EXACT = 0;
     const byte LOWERBOUND = 1;
     const byte UPPERBOUND = 2;
 
     static int nodeCount = 0;
 
     static readonly ulong[,,] ZobristTable;
-    static readonly ulong     ZobristBlackToMove;
+    static readonly ulong ZobristBlackToMove;
 
     static MiniMax()
     {
@@ -53,7 +53,7 @@ public static class MiniMax
         {
             int piece = Position.Squares[sq];
             if (piece == Piece.None) continue;
-            int type  = Piece.GetType(piece);
+            int type = Piece.GetType(piece);
             int color = Piece.GetColor(piece) == Piece.White ? 0 : 1;
             hash ^= ZobristTable[sq, type, color];
         }
@@ -72,21 +72,8 @@ public static class MiniMax
             Piece.Rook   => 500,
             Piece.Queen  => 900,
             Piece.King   => 20000,
-            _            => 0
+            _ => 0
         };
-    }
-
-    static int CheapEval()
-    {
-        int score = 0;
-        for (int sq = 0; sq < 64; sq++)
-        {
-            int piece = Position.Squares[sq];
-            if (piece == Piece.None) continue;
-            int value = PieceValue(piece);
-            score += Piece.GetColor(piece) == Piece.White ? value : -value;
-        }
-        return Position.colorToMove == Piece.White ? score : -score;
     }
 
     static int MoveScore(Move move, int ply, Move ttMove)
@@ -97,7 +84,7 @@ public static class MiniMax
 
         if (move.CaptureMove)
         {
-            int victim    = PieceValue(Position.Squares[move.TargetSquare]);
+            int victim = PieceValue(Position.Squares[move.TargetSquare]);
             int aggressor = PieceValue(move.MovingPiece);
             return 1_000_000 + victim * 10 - aggressor;
         }
@@ -105,11 +92,11 @@ public static class MiniMax
         if (move.IsPromotion)
             return 900_000 + PieceValue(move.PromotionType);
 
-        if (move.StartSquare  == killers[ply, 0].StartSquare &&
+        if (move.StartSquare == killers[ply, 0].StartSquare &&
             move.TargetSquare == killers[ply, 0].TargetSquare)
             return 800_000;
 
-        if (move.StartSquare  == killers[ply, 1].StartSquare &&
+        if (move.StartSquare == killers[ply, 1].StartSquare &&
             move.TargetSquare == killers[ply, 1].TargetSquare)
             return 700_000;
 
@@ -123,7 +110,7 @@ public static class MiniMax
         if (depth <= 0)
             return Quiescence(alpha, beta);
 
-        ulong key   = ComputeZobrist();
+        ulong key = ComputeZobrist();
         int ttIndex = (int)(key % TT_SIZE);
         TTEntry ttEntry = tt[ttIndex];
         Move ttMove = default;
@@ -134,7 +121,7 @@ public static class MiniMax
             if (ttEntry.Depth >= depth)
             {
                 int ttScore = ttEntry.Score;
-                if (ttEntry.Flag == EXACT)                          return ttScore;
+                if (ttEntry.Flag == EXACT) return ttScore;
                 if (ttEntry.Flag == LOWERBOUND && ttScore >= beta)  return ttScore;
                 if (ttEntry.Flag == UPPERBOUND && ttScore <= alpha) return ttScore;
             }
@@ -143,13 +130,13 @@ public static class MiniMax
         List<Move> moves = MoveGeneration.GenerateLegalMoves();
 
         if (moves.Count == 0)
-            return CheapEval();
+            return (int)ChessEvaluator.Evaluate();
 
         moves.Sort((a, b) => MoveScore(b, ply, ttMove).CompareTo(MoveScore(a, ply, ttMove)));
 
         int originalAlpha = alpha;
-        Move bestMove     = default;
-        int bestScore     = -999999999;
+        Move bestMove = default;
+        int bestScore = -999999999;
 
         for (int i = 0; i < moves.Count; i++)
         {
@@ -183,8 +170,7 @@ public static class MiniMax
             if (eval > alpha) alpha = eval;
         }
 
-        byte flag = bestScore <= originalAlpha ? UPPERBOUND :
-                    bestScore >= beta           ? LOWERBOUND : EXACT;
+        byte flag = bestScore <= originalAlpha ? UPPERBOUND : (bestScore >= beta ? LOWERBOUND : EXACT);
 
         tt[ttIndex] = new TTEntry {
             Key = key, Depth = depth, Score = bestScore,
@@ -196,7 +182,7 @@ public static class MiniMax
 
     static int Quiescence(int alpha, int beta)
     {
-        int standPat = CheapEval();
+        int standPat = (int)ChessEvaluator.Evaluate();
 
         if (standPat >= beta)  return beta;
         if (standPat > alpha)  alpha = standPat;
@@ -225,12 +211,12 @@ public static class MiniMax
         nodeCount = 0;
 
         Move bestMove = default;
-        int alpha     = -999999999;
-        int beta      =  999999999;
+        int alpha = -999999999;
+        int beta = 999999999;
 
         var (_, policy) = ChessEvaluator.EvaluateWithPolicy();
 
-        ulong key   = ComputeZobrist();
+        ulong key = ComputeZobrist();
         int ttIndex = (int)(key % TT_SIZE);
         TTEntry ttEntry = tt[ttIndex];
         Move ttMove = ttEntry.Key == key ? ttEntry.BestMove : default;
@@ -252,7 +238,7 @@ public static class MiniMax
 
             if (eval > alpha)
             {
-                alpha    = eval;
+                alpha = eval;
                 bestMove = move;
             }
         }

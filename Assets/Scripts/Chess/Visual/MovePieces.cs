@@ -23,8 +23,8 @@ public class MovePieces : MonoBehaviour
         if (gameHandler.promotionHandler.IsAwaitingPromotion) return; // block input during promotion menu
 
         if (Input.GetMouseButtonDown(0)) StartDrag();
-        if (Input.GetMouseButton(0))     DragPiece();
-        if (Input.GetMouseButtonUp(0))   DropPiece();
+        if (Input.GetMouseButton(0)) DragPiece();
+        if (Input.GetMouseButtonUp(0)) DropPiece();
     }
 
     void StartDrag()
@@ -79,18 +79,18 @@ public class MovePieces : MonoBehaviour
     }
 
    static Move? FindLegalMove(Move input)
-{
-    if (legalMoves == null) return null;
-
-    foreach (Move legal in legalMoves)
     {
-        UnityEngine.Debug.Log($"Legal: {legal.StartSquare}->{legal.TargetSquare} castling:{legal.CastlingMove}");
-        if (legal.StartSquare == input.StartSquare &&
-            legal.TargetSquare == input.TargetSquare)
-            return legal;
-    }
+        if (legalMoves == null) return null;
 
-    UnityEngine.Debug.Log($"No match for {input.StartSquare}->{input.TargetSquare}");
-    return null;
-}
+        foreach (Move legal in legalMoves)
+        {
+            Debug.Log($"Legal: {legal.StartSquare}->{legal.TargetSquare} castling:{legal.CastlingMove}");
+            if (legal.StartSquare == input.StartSquare &&
+                legal.TargetSquare == input.TargetSquare)
+                return legal;
+        }
+
+        Debug.Log($"No match for {input.StartSquare}->{input.TargetSquare}");
+        return null;
+    }
 }
